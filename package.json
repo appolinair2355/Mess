@@ -1,0 +1,14 @@
+{
+  "name": "sms-site",
+  "version": "1.0.0",
+  "description": "Site web pour envoyer un SMS vers un numéro fixe via l'API Twilio",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "twilio": "^5.3.0",
+    "dotenv": "^16.4.5"
+  }
+}

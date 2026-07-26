@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envoyer un SMS</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  .card {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  h1 {
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+  p.sub {
+    color: #94a3b8;
+    font-size: 14px;
+    margin: 0 0 24px;
+  }
+  .lbl {
+    display: block;
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 14px 0 6px;
+  }
+  select, input, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 15px;
+  }
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #1d4ed8; }
+  button:disabled { background: #475569; cursor: not-allowed; }
+  #status {
+    margin-top: 16px;
+    font-size: 14px;
+    min-height: 20px;
+  }
+  .ok { color: #4ade80; }
+  .err { color: #f87171; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>📱 Envoyer un SMS</h1>
+    <p class="sub">Choisis le pays, entre le numéro local, puis ton message.</p>
+
+    <label class="lbl">Pays</label>
+    <select id="country"></select>
+
+    <label class="lbl">Numéro local</label>
+    <input id="phone" type="tel" placeholder="Ex: 90 00 00 00" />
+
+    <label class="lbl">En-tête (nom expéditeur, 11 caractères max)</label>
+    <input id="senderId" type="text" maxlength="11" placeholder="Ex: MonSite" />
+
+    <label class="lbl">Message</label>
+    <textarea id="message" placeholder="Écris ton message ici..." maxlength="480"></textarea>
+    <button id="sendBtn">Envoyer</button>
+    <div id="status"></div>
+  </div>
+
+<script>
+// Liste des pays d'Afrique avec indicatif et drapeau
+const countries = [
+  ["Algérie","+213","🇩🇿"],["Angola","+244","🇦🇴"],["Bénin","+229","🇧🇯"],
+  ["Botswana","+267","🇧🇼"],["Burkina Faso","+226","🇧🇫"],["Burundi","+257","🇧🇮"],
+  ["Cap-Vert","+238","🇨🇻"],["Cameroun","+237","🇨🇲"],["Centrafrique","+236","🇨🇫"],
+  ["Tchad","+235","🇹🇩"],["Comores","+269","🇰🇲"],["Congo-Brazzaville","+242","🇨🇬"],
+  ["RD Congo","+243","🇨🇩"],["Djibouti","+253","🇩🇯"],["Égypte","+20","🇪🇬"],
+  ["Guinée équatoriale","+240","🇬🇶"],["Érythrée","+291","🇪🇷"],["Eswatini","+268","🇸🇿"],
+  ["Éthiopie","+251","🇪🇹"],["Gabon","+241","🇬🇦"],["Gambie","+220","🇬🇲"],
+  ["Ghana","+233","🇬🇭"],["Guinée","+224","🇬🇳"],["Guinée-Bissau","+245","🇬🇼"],
+  ["Côte d'Ivoire","+225","🇨🇮"],["Kenya","+254","🇰🇪"],["Lesotho","+266","🇱🇸"],
+  ["Liberia","+231","🇱🇷"],["Libye","+218","🇱🇾"],["Madagascar","+261","🇲🇬"],
+  ["Malawi","+265","🇲🇼"],["Mali","+223","🇲🇱"],["Mauritanie","+222","🇲🇷"],
+  ["Maurice","+230","🇲🇺"],["Maroc","+212","🇲🇦"],["Mozambique","+258","🇲🇿"],
+  ["Namibie","+264","🇳🇦"],["Niger","+227","🇳🇪"],["Nigeria","+234","🇳🇬"],
+  ["Rwanda","+250","🇷🇼"],["Sao Tomé-et-Principe","+239","🇸🇹"],["Sénégal","+221","🇸🇳"],
+  ["Seychelles","+248","🇸🇨"],["Sierra Leone","+232","🇸🇱"],["Somalie","+252","🇸🇴"],
+  ["Afrique du Sud","+27","🇿🇦"],["Soudan du Sud","+211","🇸🇸"],["Soudan","+249","🇸🇩"],
+  ["Tanzanie","+255","🇹🇿"],["Togo","+228","🇹🇬"],["Tunisie","+216","🇹🇳"],
+  ["Ouganda","+256","🇺🇬"],["Zambie","+260","🇿🇲"],["Zimbabwe","+263","🇿🇼"]
+];
+
+const countrySelect = document.getElementById('country');
+countries.forEach(([name, code, flag]) => {
+  const opt = document.createElement('option');
+  opt.value = code;
+  opt.textContent = `${flag} ${name} (${code})`;
+  if (code === '+229') opt.selected = true; // Bénin par défaut
+  countrySelect.appendChild(opt);
+});
+
+const btn = document.getElementById('sendBtn');
+const messageEl = document.getElementById('message');
+const statusEl = document.getElementById('status');
+
+btn.addEventListener('click', async () => {
+  const message = messageEl.value.trim();
+  const dialCode = countrySelect.value;
+  const localNumber = document.getElementById('phone').value.trim().replace(/[\s.-]/g, '');
+  const senderId = document.getElementById('senderId').value.trim();
+
+  if (!message) {
+    statusEl.textContent = 'Écris un message avant d\'envoyer.';
+    statusEl.className = 'err';
+    return;
+  }
+  if (!localNumber) {
+    statusEl.textContent = 'Entre un numéro de téléphone.';
+    statusEl.className = 'err';
+    return;
+  }
+
+  // Retire un éventuel 0 initial (ex: Bénin 90000000 pas 090000000)
+  const cleanedNumber = localNumber.replace(/^0+/, '');
+  const fullNumber = dialCode + cleanedNumber;
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi...';
+  statusEl.textContent = '';
+
+  try {
+    const res = await fetch('/api/send-sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, to: fullNumber, senderId })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      statusEl.textContent = '✅ SMS envoyé !';
+      statusEl.className = 'ok';
+      messageEl.value = '';
+    } else {
+      statusEl.textContent = '❌ Erreur : ' + data.error;
+      statusEl.className = 'err';
+    }
+  } catch (e) {
+    statusEl.textContent = '❌ Erreur réseau.';
+    statusEl.className = 'err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Envoyer';
+  }
+});
+</script>
+</body>
+</html>

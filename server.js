@@ -6,13 +6,11 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const API_KEY = process.env.PROSMS_API_KEY;
-const API_PASS = process.env.PROSMS_API_PASS;
+// ⚠️ Identifiants en dur (comme demandé) — sert aussi de valeur par défaut
+// si PROSMS_API_KEY / PROSMS_API_PASS ne sont pas définis sur Render.
+const API_KEY = process.env.PROSMS_API_KEY || '5ei38HDvQm';
+const API_PASS = process.env.PROSMS_API_PASS || '1aCCU-sQN-fGXc1';
 const SENDER_DEFAULT = process.env.PROSMS_SENDER_ID || 'MonSite';
-
-if (!API_KEY || !API_PASS) {
-  console.warn('⚠️  PROSMS_API_KEY / PROSMS_API_PASS manquants dans .env');
-}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));

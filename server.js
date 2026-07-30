@@ -6,59 +6,45 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ⚠️ Identifiants en dur (comme demandé) — sert aussi de valeur par défaut
-// si PROSMS_API_KEY / PROSMS_API_PASS ne sont pas définis sur Render.
-const API_KEY = process.env.PROSMS_API_KEY || '5ei38HDvQm';
-const API_PASS = process.env.PROSMS_API_PASS || '1aCCU-sQN-fGXc1';
-const SENDER_DEFAULT = process.env.PROSMS_SENDER_ID || 'MonSite';
+// Identifiants TextingHouse (page "Paramètres" de leur interface API)
+const TH_USER = process.env.TEXTINGHOUSE_USER || 'sossoukouam@gmail.com';
+const TH_PASS = process.env.TEXTINGHOUSE_PASS || '1tn24m3j79sn3b54pdirsi5r';
+const SENDER_DEFAULT = process.env.TEXTINGHOUSE_SENDER || ''; // optionnel, max 11 car. alphanum
+
+const TH_API_URL = 'https://api.textinghouse.com/http/v1/do';
+const TH_API_URL_BACKUP = 'https://api2.textinghouse.com/http/v1/do'; // serveur de secours (doc 4.9)
+
+if (TH_USER === 'XXXX' || TH_PASS === 'XXXX') {
+  console.warn('⚠️  TEXTINGHOUSE_USER / TEXTINGHOUSE_PASS non configurés (voir .env.example)');
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ============================================================
-// On ne connaît pas encore l'URL/paramètres exacts de prosms.pro.
-// Le tableau ci-dessous liste plusieurs variantes courantes
-// (noms de domaine + noms de paramètres) utilisées par ce type de
-// passerelle SMS ("API Impressiv'"). Le serveur les essaie une par
-// une dans l'ordre, jusqu'à obtenir une réponse qui ressemble à
-// un succès. La première variante qui fonctionne sera loguée dans
-// la console — il suffira ensuite de ne garder que celle-là.
-// ============================================================
-function buildCandidates({ to, sender, message }) {
-  const bases = [
-    'https://www.prosms.pro/api/sendsms.php',
-    'https://www.prosms.pro/api/send.php',
-    'https://www.prosms.pro/api/httpsms.php',
-    'https://dashboard.prosms.pro/api/sendsms.php',
-    'https://dashboard.prosms.pro/api/send.php',
-    'https://dashboard.prosms.pro/api/httpsms.php',
-  ];
-
-  const paramSets = [
-    { apikey: API_KEY, apipass: API_PASS, to, sender, message },
-    { apikey: API_KEY, apipass: API_PASS, destinataire: to, expediteur: sender, message },
-    { key: API_KEY, pass: API_PASS, to, from: sender, text: message },
-    { api_key: API_KEY, api_pass: API_PASS, to, sender, message },
-    { user: API_KEY, pass: API_PASS, to, sender, msg: message },
-    { apikey: API_KEY, apipass: API_PASS, numero: to, sender, message },
-  ];
-
-  const candidates = [];
-  for (const base of bases) {
-    for (const params of paramSets) {
-      candidates.push({ url: base, params });
-    }
+// Analyse la réponse texte brute de TextingHouse : "ID:xxxx" ou "ERR: code | description"
+function parseTextingHouseResponse(raw) {
+  const text = String(raw).trim();
+  if (text.startsWith('ID:')) {
+    return { ok: true, id: text.slice(3).trim() };
   }
-  return candidates;
+  if (text.startsWith('ERR:')) {
+    const [, rest] = text.split('ERR:');
+    const [code, ...descParts] = rest.split('|');
+    return { ok: false, code: code.trim(), description: descParts.join('|').trim() };
+  }
+  return { ok: false, code: 'UNKNOWN', description: text };
 }
 
-// Une réponse est considérée "probablement réussie" si elle ne contient
-// pas de mot-clé d'erreur évident. On ajustera cette heuristique une
-// fois qu'on connaît le vrai format de réponse de prosms.pro.
-function looksSuccessful(data) {
-  const text = (typeof data === 'string' ? data : JSON.stringify(data)).toLowerCase();
-  const errorHints = ['error', 'erreur', 'invalid', 'not found', '404', 'unauthorized', 'denied', 'html>'];
-  return !errorHints.some((hint) => text.includes(hint));
+async function sendViaTextingHouse(params) {
+  try {
+    const response = await axios.get(TH_API_URL, { params, timeout: 8000 });
+    return response.data;
+  } catch (err) {
+    // Basculement sur le serveur de secours en cas d'échec réseau (doc 4.9)
+    console.warn('⚠️  Échec sur api.textinghouse.com, tentative sur api2.textinghouse.com', err.message);
+    const response = await axios.get(TH_API_URL_BACKUP, { params, timeout: 8000 });
+    return response.data;
+  }
 }
 
 app.post('/api/send-sms', async (req, res) => {
@@ -81,37 +67,34 @@ app.post('/api/send-sms', async (req, res) => {
     sender = senderId.trim();
   }
 
+  // TextingHouse veut le numéro sans le "+" (ex: 33628000000)
   const numeroSansPlus = destination.replace('+', '');
-  const candidates = buildCandidates({ to: numeroSansPlus, sender, message });
 
-  const attempts = [];
-  for (const candidate of candidates) {
-    try {
-      const response = await axios.get(candidate.url, { params: candidate.params, timeout: 8000 });
-      attempts.push({ url: candidate.url, params: candidate.params, status: response.status, data: response.data });
+  const params = {
+    user: TH_USER,
+    pass: TH_PASS,
+    cmd: 'sendsms',
+    to: numeroSansPlus,
+    txt: message,
+    iscom: 'N', // message de service (non commercial) — pas de mention STOP requise
+  };
+  if (sender) params.from = sender;
 
-      if (looksSuccessful(response.data)) {
-        console.log('✅ Variante qui semble avoir fonctionné :');
-        console.log('   URL     :', candidate.url);
-        console.log('   Params  :', JSON.stringify(candidate.params));
-        console.log('   Réponse :', response.data);
-        return res.json({ ok: true, workingUrl: candidate.url, workingParams: candidate.params, raw: response.data });
-      }
-    } catch (err) {
-      attempts.push({
-        url: candidate.url,
-        params: candidate.params,
-        error: err.response ? `HTTP ${err.response.status}` : err.message,
-      });
+  try {
+    const raw = await sendViaTextingHouse(params);
+    const result = parseTextingHouseResponse(raw);
+
+    if (result.ok) {
+      console.log(`✅ SMS envoyé, ID TextingHouse : ${result.id}`);
+      return res.json({ ok: true, id: result.id, raw });
     }
-  }
 
-  console.error('❌ Aucune variante n\'a fonctionné. Détail des tentatives :', JSON.stringify(attempts, null, 2));
-  return res.status(500).json({
-    ok: false,
-    error: "Aucune combinaison URL/paramètres n'a fonctionné. Voir les tentatives dans la console du serveur, ou fournis la doc exacte de prosms.pro.",
-    attempts,
-  });
+    console.error(`❌ Erreur TextingHouse ${result.code} : ${result.description}`);
+    return res.status(502).json({ ok: false, error: `Erreur ${result.code} : ${result.description}`, raw });
+  } catch (err) {
+    console.error('Erreur réseau TextingHouse :', err.message);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.listen(PORT, () => {

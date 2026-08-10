@@ -151,7 +151,12 @@ btn.addEventListener('click', async () => {
   }
 
   // Retire un éventuel 0 initial (ex: Bénin 90000000 pas 090000000)
-  const cleanedNumber = localNumber.replace(/^0+/, '');
+  // EXCEPTION Côte d'Ivoire (+225) : depuis le passage à 10 chiffres (31/01/2021),
+  // le 0 initial fait partie intégrante du numéro national et doit être conservé
+  // (ex: 07 45 67 89 01 -> +225 07 45 67 89 01, PAS +225 7 45 67 89 01).
+  const cleanedNumber = (dialCode === '+225')
+    ? localNumber
+    : localNumber.replace(/^0+/, '');
   const fullNumber = dialCode + cleanedNumber;
 
   btn.disabled = true;

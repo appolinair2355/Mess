@@ -1,192 +1,627 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Envoyer un SMS</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 20px;
-  }
-  .card {
-    background: #1e293b;
-    border-radius: 16px;
-    padding: 32px;
-    max-width: 420px;
-    width: 100%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  }
-  h1 {
-    font-size: 22px;
-    margin: 0 0 8px;
-  }
-  p.sub {
-    color: #94a3b8;
-    font-size: 14px;
-    margin: 0 0 24px;
-  }
-  .lbl {
-    display: block;
-    font-size: 13px;
-    color: #94a3b8;
-    margin: 14px 0 6px;
-  }
-  select, input, textarea {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #334155;
-    background: #0f172a;
-    color: #e2e8f0;
-    font-size: 15px;
-  }
-  textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  button {
-    width: 100%;
-    margin-top: 16px;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: #2563eb;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  button:hover { background: #1d4ed8; }
-  button:disabled { background: #475569; cursor: not-allowed; }
-  #status {
-    margin-top: 16px;
-    font-size: 14px;
-    min-height: 20px;
-  }
-  .ok { color: #4ade80; }
-  .err { color: #f87171; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Baccara Control Room</title>
+  <meta name="description" content="Pilotage des stratégies Baccarat, analyse IA et routage Telegram.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080b12; --surface: #101622; --surface-2: #151d2b; --line: #243042;
+      --text: #f4f7fb; --muted: #8e9bb0; --soft: #cbd5e1;
+      --cyan: #70e1e5; --cyan-2: #1b9fa9; --orange: #f5b86b; --green: #75dfae;
+      --red: #ff8390; --violet: #b7a2ff; --shadow: 0 24px 70px rgba(0,0,0,.28);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body { margin: 0; color: var(--text); background:
+      radial-gradient(circle at 12% -10%, rgba(112,225,229,.13), transparent 35rem),
+      radial-gradient(circle at 92% 0%, rgba(245,184,107,.10), transparent 28rem), var(--bg);
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .mono, code, pre { font-family: "DM Mono", monospace; }
+    .shell { max-width: 1220px; margin: auto; padding: 0 24px 72px; }
+    header { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(36,48,66,.75);
+      background: rgba(8,11,18,.82); backdrop-filter: blur(18px); }
+    .topbar { max-width: 1220px; margin: auto; padding: 17px 24px; display: flex; gap: 28px; align-items: center; }
+    .brand { display: flex; gap: 12px; align-items: center; font-weight: 800; letter-spacing: -.04em; }
+    .mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+      color: #071014; background: linear-gradient(145deg, var(--cyan), var(--orange)); box-shadow: 0 8px 24px rgba(112,225,229,.18); }
+    .brand small { display: block; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+    nav { display: none; }
+    .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; padding: 34px 0 60px; }
+    .home-button { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; text-align: left;
+      background: #FFD400; color: #000; border: 3px solid #000; border-radius: 16px; padding: 26px 22px;
+      font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; cursor: pointer;
+      box-shadow: 0 8px 0 rgba(0,0,0,.45); }
+    .home-button:hover { background: #FFE45C; transform: translateY(-2px); }
+    .home-button small { color: #000; font-size: 14px; font-weight: 800; text-transform: none; }
+    .backbar { padding: 26px 0 8px; }
+    .home-back { background: #FFD400; color: #000; border: 3px solid #000; font-weight: 900; font-size: 16px;
+      border-radius: 12px; padding: 12px 18px; text-transform: uppercase; text-decoration: none; display: inline-block; }
+    .home-back:hover { background: #FFE45C; }
+    nav a { color: var(--muted); text-decoration: none; border: 1px solid transparent; padding: 9px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+    nav a:hover, nav a.active { color: var(--text); background: var(--surface-2); border-color: var(--line); }
+    .status { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+    .status.ok i { background: var(--green); box-shadow: 0 0 0 5px rgba(117,223,174,.1); }
+    .eyebrow { color: var(--cyan); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 730px; margin: 16px 0 14px; font-size: clamp(34px, 6vw, 68px); line-height: .98; letter-spacing: -.065em; }
+    h2 { font-size: 24px; letter-spacing: -.045em; margin-bottom: 18px; }
+    h3 { font-size: 16px; letter-spacing: -.025em; margin-bottom: 8px; }
+    p { color: var(--muted); line-height: 1.7; }
+    .hero { padding: 68px 0 40px; display: grid; grid-template-columns: 1.5fr .8fr; gap: 38px; align-items: end; }
+    .hero p { max-width: 670px; font-size: 15px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .button { display: inline-flex; justify-content: center; align-items: center; gap: 9px; min-height: 44px; padding: 0 16px;
+      border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: var(--surface-2); font-weight: 800; font-size: 13px; transition: .18s ease; }
+    .button:hover { transform: translateY(-1px); border-color: #49627f; }
+    .button.primary { color: #071014; border-color: transparent; background: linear-gradient(135deg, var(--cyan), #b5f2d5); }
+    .button.orange { color: #1a1006; border-color: transparent; background: linear-gradient(135deg, var(--orange), #ffd9a4); }
+    .button.ghost { background: transparent; }
+    .button.danger { color: var(--red); border-color: rgba(255,131,144,.32); background: rgba(255,131,144,.06); }
+    .button.small { min-height: 34px; padding: 0 11px; font-size: 11px; border-radius: 9px; }
+    .panel { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(21,29,43,.94), rgba(13,18,28,.94)); box-shadow: var(--shadow); }
+    .pulse-card { padding: 20px; border: 1px solid rgba(112,225,229,.25); border-radius: var(--radius); background: linear-gradient(145deg, rgba(19,48,55,.62), rgba(16,22,34,.75)); }
+    .live-number { margin: 15px 0 4px; color: var(--cyan); font-size: 42px; font-weight: 800; letter-spacing: -.08em; }
+    .live-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; color: var(--soft); background: rgba(255,255,255,.05); border: 1px solid var(--line); font-size: 11px; font-weight: 700; }
+    .tag.good { color: var(--green); border-color: rgba(117,223,174,.28); background: rgba(117,223,174,.08); }
+    .tag.warn { color: var(--orange); border-color: rgba(245,184,107,.28); background: rgba(245,184,107,.08); }
+    .tag.bad { color: var(--red); border-color: rgba(255,131,144,.28); background: rgba(255,131,144,.08); }
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0 42px; }
+    .stat { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: rgba(16,22,34,.76); }
+    .stat b { display: block; margin-top: 8px; font-size: 27px; letter-spacing: -.06em; }
+    .stat span { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(225px, 1fr)); gap: 12px; }
+    .strategy-button { min-height: 112px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; padding: 18px;
+      border: 1px solid var(--line); border-radius: 17px; color: var(--text); background: var(--surface); transition: .2s; }
+    .strategy-button:hover { border-color: var(--cyan); background: #15232c; transform: translateY(-2px); }
+    .strategy-button b { font-size: 14px; }
+    .strategy-button span { color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .strategy-button em { color: var(--cyan); font-size: 11px; font-style: normal; }
+    .section { margin-top: 44px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .section-head p { margin: 0; font-size: 12px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .field { display: grid; gap: 7px; margin-bottom: 14px; }
+    .field label { color: var(--soft); font-size: 12px; font-weight: 700; }
+    input, select, textarea { width: 100%; color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; outline: none; background: #0b111b; }
+    input:focus, select:focus, textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(112,225,229,.09); }
+    textarea { min-height: 112px; resize: vertical; line-height: 1.55; }
+    .check { display: flex; align-items: center; gap: 9px; color: var(--soft); font-size: 12px; }
+    .check input { width: auto; accent-color: var(--cyan); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+    .notice { padding: 13px 15px; margin: 14px 0; border-radius: 12px; color: var(--soft); background: rgba(112,225,229,.06); border: 1px solid rgba(112,225,229,.18); font-size: 12px; line-height: 1.55; }
+    .notice.warn { border-color: rgba(245,184,107,.28); background: rgba(245,184,107,.06); }
+    .notice.error { border-color: rgba(255,131,144,.28); background: rgba(255,131,144,.06); }
+    .route-card { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: rgba(8,11,18,.34); }
+    .route-card.public { border-color: rgba(117,223,174,.25); }
+    .route-card.shadow { border-color: rgba(183,162,255,.28); }
+    .route-title { display: flex; gap: 9px; align-items: center; margin-bottom: 4px; }
+    .route-title strong { font-size: 14px; }
+    .route-title i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); }
+    .shadow .route-title i { background: var(--violet); }
+    .route-card p { margin-bottom: 14px; font-size: 11px; }
+    .split { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .back { margin-bottom: 16px; }
+    .back a { color: var(--muted); font-size: 12px; text-decoration: none; }
+    .back a:hover { color: var(--cyan); }
+    .proposals { display: grid; gap: 12px; margin-top: 18px; }
+    .proposal { padding: 18px; border: 1px solid rgba(183,162,255,.25); border-radius: 15px; background: rgba(183,162,255,.055); }
+    .proposal h3 { color: #d8d0ff; }
+    .proposal dl { display: grid; grid-template-columns: 130px 1fr; gap: 8px; font-size: 12px; }
+    .proposal dt { color: var(--muted); font-weight: 700; }
+    .proposal dd { margin: 0; color: var(--soft); line-height: 1.5; }
+    .format-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 10px; }
+    .format-card { min-height: 142px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+    .format-card b { color: var(--orange); font-size: 12px; }
+    .format-card pre { white-space: pre-wrap; color: var(--soft); font-size: 11px; line-height: 1.55; margin: 12px 0 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 11px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 20px;
+      background: rgba(4,7,12,.72); backdrop-filter: blur(8px); animation: fade .18s ease; }
+    @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.985) } to { opacity: 1; transform: none } }
+    .modal { width: min(560px, 100%); max-height: 86vh; overflow: auto; padding: 26px; border-radius: 22px;
+      border: 1px solid rgba(112,225,229,.28); background: linear-gradient(150deg, rgba(22,33,47,.98), rgba(11,16,25,.98));
+      box-shadow: 0 40px 110px rgba(0,0,0,.55); animation: rise .22s ease; }
+    .modal h3 { font-size: 20px; letter-spacing: -.04em; margin-bottom: 4px; }
+    .modal dl { display: grid; grid-template-columns: 150px 1fr; gap: 10px 14px; margin: 20px 0 0; font-size: 13px; }
+    .modal dt { color: var(--muted); font-weight: 700; }
+    .modal dd { margin: 0; color: var(--soft); word-break: break-all; }
+    .modal-actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 24px; }
+    .modal-head { display: flex; gap: 14px; align-items: flex-start; justify-content: space-between; }
+    .empty { padding: 36px 20px; color: var(--muted); text-align: center; border: 1px dashed var(--line); border-radius: 14px; }
+    .loading { min-height: 160px; display: grid; place-items: center; color: var(--muted); }
+    footer { margin-top: 50px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    @media (max-width: 820px) {
+      .topbar { gap: 14px; flex-wrap: wrap; } nav { order: 3; width: 100%; margin-left: 0; overflow-x: auto; }
+      .hero, .two-col { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2,1fr); }
+      .three-col { grid-template-columns: 1fr; } .shell { padding: 0 15px 52px; } .hero { padding-top: 40px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="card">
-    <h1>📱 Envoyer un SMS</h1>
-    <p class="sub">Choisis le pays, entre le numéro local, puis ton message.</p>
-
-    <label class="lbl">Pays</label>
-    <select id="country"></select>
-
-    <label class="lbl">Numéro local</label>
-    <input id="phone" type="tel" placeholder="Ex: 90 00 00 00" />
-
-    <label class="lbl">En-tête (nom expéditeur, 11 caractères max)</label>
-    <input id="senderId" type="text" maxlength="11" placeholder="Ex: MonSite" />
-
-    <label class="lbl">Message</label>
-    <textarea id="message" placeholder="Écris ton message ici..." maxlength="480"></textarea>
-    <button id="sendBtn">Envoyer</button>
-    <div id="status"></div>
-  </div>
-
-<script>
-// Liste des pays d'Afrique avec indicatif et drapeau
-const countries = [
-  ["Algérie","+213","🇩🇿"],["Angola","+244","🇦🇴"],["Bénin","+229","🇧🇯"],
-  ["Botswana","+267","🇧🇼"],["Burkina Faso","+226","🇧🇫"],["Burundi","+257","🇧🇮"],
-  ["Cap-Vert","+238","🇨🇻"],["Cameroun","+237","🇨🇲"],["Centrafrique","+236","🇨🇫"],
-  ["Tchad","+235","🇹🇩"],["Comores","+269","🇰🇲"],["Congo-Brazzaville","+242","🇨🇬"],
-  ["RD Congo","+243","🇨🇩"],["Djibouti","+253","🇩🇯"],["Égypte","+20","🇪🇬"],
-  ["Guinée équatoriale","+240","🇬🇶"],["Érythrée","+291","🇪🇷"],["Eswatini","+268","🇸🇿"],
-  ["Éthiopie","+251","🇪🇹"],["Gabon","+241","🇬🇦"],["Gambie","+220","🇬🇲"],
-  ["Ghana","+233","🇬🇭"],["Guinée","+224","🇬🇳"],["Guinée-Bissau","+245","🇬🇼"],
-  ["Côte d'Ivoire","+225","🇨🇮"],["Kenya","+254","🇰🇪"],["Lesotho","+266","🇱🇸"],
-  ["Liberia","+231","🇱🇷"],["Libye","+218","🇱🇾"],["Madagascar","+261","🇲🇬"],
-  ["Malawi","+265","🇲🇼"],["Mali","+223","🇲🇱"],["Mauritanie","+222","🇲🇷"],
-  ["Maurice","+230","🇲🇺"],["Maroc","+212","🇲🇦"],["Mozambique","+258","🇲🇿"],
-  ["Namibie","+264","🇳🇦"],["Niger","+227","🇳🇪"],["Nigeria","+234","🇳🇬"],
-  ["Rwanda","+250","🇷🇼"],["Sao Tomé-et-Principe","+239","🇸🇹"],["Sénégal","+221","🇸🇳"],
-  ["Seychelles","+248","🇸🇨"],["Sierra Leone","+232","🇸🇱"],["Somalie","+252","🇸🇴"],
-  ["Afrique du Sud","+27","🇿🇦"],["Soudan du Sud","+211","🇸🇸"],["Soudan","+249","🇸🇩"],
-  ["Tanzanie","+255","🇹🇿"],["Togo","+228","🇹🇬"],["Tunisie","+216","🇹🇳"],
-  ["Ouganda","+256","🇺🇬"],["Zambie","+260","🇿🇲"],["Zimbabwe","+263","🇿🇼"]
-];
-
-const countrySelect = document.getElementById('country');
-countries.forEach(([name, code, flag]) => {
-  const opt = document.createElement('option');
-  opt.value = code;
-  opt.textContent = `${flag} ${name} (${code})`;
-  if (code === '+229') opt.selected = true; // Bénin par défaut
-  countrySelect.appendChild(opt);
-});
-
-const btn = document.getElementById('sendBtn');
-const messageEl = document.getElementById('message');
-const statusEl = document.getElementById('status');
-
-btn.addEventListener('click', async () => {
-  const message = messageEl.value.trim();
-  const dialCode = countrySelect.value;
-  const localNumber = document.getElementById('phone').value.trim().replace(/[\s.-]/g, '');
-  const senderId = document.getElementById('senderId').value.trim();
-
-  if (!message) {
-    statusEl.textContent = 'Écris un message avant d\'envoyer.';
-    statusEl.className = 'err';
-    return;
-  }
-  if (!localNumber) {
-    statusEl.textContent = 'Entre un numéro de téléphone.';
-    statusEl.className = 'err';
-    return;
-  }
-
-  // Retire un éventuel 0 initial (ex: Bénin 90000000 pas 090000000)
-  // EXCEPTION Côte d'Ivoire (+225) : depuis le passage à 10 chiffres (31/01/2021),
-  // le 0 initial fait partie intégrante du numéro national et doit être conservé
-  // (ex: 07 45 67 89 01 -> +225 07 45 67 89 01, PAS +225 7 45 67 89 01).
-  const cleanedNumber = (dialCode === '+225')
-    ? localNumber
-    : localNumber.replace(/^0+/, '');
-  const fullNumber = dialCode + cleanedNumber;
-
-  btn.disabled = true;
-  btn.textContent = 'Envoi...';
-  statusEl.textContent = '';
-
-  try {
-    const res = await fetch('/api/send-sms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, to: fullNumber, senderId })
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      statusEl.textContent = '✅ SMS envoyé !';
-      statusEl.className = 'ok';
-      messageEl.value = '';
-    } else {
-      statusEl.textContent = '❌ Erreur : ' + data.error;
-      statusEl.className = 'err';
+  <header>
+    <div class="topbar">
+      <a class="brand" href="#/" style="text-decoration:none">
+        <span class="mark">B</span><span>Baccara Control Room<small>Prediction operations</small></span>
+      </a>
+      <nav>
+        <a href="#/" data-nav="home">Accueil</a>
+        <a href="#/ai" data-nav="ai">Analyseur IA</a>
+        <a href="#/ai-strategies" data-nav="ai">Stratégies IA</a>
+        <a href="#/predit" data-nav="predit">Prédit</a>
+        <a href="#/diagnostics" data-nav="settings">Envois</a>
+        <a href="#/database" data-nav="database">Base de données</a>
+        <a href="#/formats" data-nav="formats">Formats</a>
+        <a href="#/settings" data-nav="settings">Configuration</a>
+      </nav>
+      <span id="botStatus" class="status"><i></i> Connexion...</span>
+    </div>
+  </header>
+  <main id="app" class="shell"><div class="loading">Chargement du centre de contrôle...</div></main>
+  <script>
+    let snapshot = null;
+    const $ = (s, root = document) => root.querySelector(s);
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const ids = (value) => String(value || '').split(/[\s,;]+/).map(x => x.trim()).filter(Boolean);
+    const formatDate = (value) => value ? new Date(value).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' }) : '—';
+    async function api(url, method = 'GET', body) {
+      const res = await fetch(url, { method, headers: body ? {'Content-Type':'application/json'} : {}, body: body ? JSON.stringify(body) : undefined });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
+      return data;
     }
-  } catch (e) {
-    statusEl.textContent = '❌ Erreur réseau.';
-    statusEl.className = 'err';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Envoyer';
-  }
-});
-</script>
+    function toast(message, type = '') {
+      const el = document.createElement('div'); el.className = `notice ${type}`; el.textContent = message;
+      document.querySelector('#app')?.prepend(el); setTimeout(() => el.remove(), 5000);
+    }
+    function setNav(name) {
+      document.querySelectorAll('[data-nav]').forEach(a => a.classList.toggle('active', a.dataset.nav === name));
+      const bot = snapshot?.bot;
+      const status = $('#botStatus');
+      if (status) { status.className = `status ${bot?.running ? 'ok' : ''}`; status.innerHTML = `<i></i>${bot?.running ? 'Bot actif' : bot?.tokenSet ? 'Bot arrêté' : 'Bot non configuré'}`; }
+    }
+    async function refresh() { snapshot = await api('/api/state'); return snapshot; }
+    function liveCard() {
+      const live = snapshot.live;
+      if (!live) return `<div class="pulse-card"><span class="eyebrow">Flux en attente</span><h3 style="margin-top:14px">Aucun jeu reçu</h3><p class="small">Le bot attend les données du flux Baccarat.</p></div>`;
+      return `<div class="pulse-card"><div class="split"><span class="eyebrow">Jeu en direct</span><span class="tag ${live.finished ? 'good' : 'warn'}">${live.finished ? 'Terminé' : 'En cours'}</span></div>
+        <div class="live-number mono">#N${esc(live.number)}</div><div class="live-meta"><span class="tag">Joueur ${esc(live.playerValue ?? '—')}</span><span class="tag">Banquier ${esc(live.bankerValue ?? '—')}</span><span class="tag">${esc(live.winner || 'Distribution')}</span></div></div>`;
+    }
+    function strategyButtons() {
+      return (snapshot.strategies || []).map(s => `<button class="strategy-button" onclick="location.hash='#/strategy/${encodeURIComponent(s.key)}'">
+        <span class="eyebrow">${s.config?.enabled ? 'Active' : 'En pause'}</span><b>${esc(s.name)}</b><span>${esc((s.about || '').slice(0, 92))}...</span><em>Ouvrir la configuration →</em></button>`).join('');
+    }
+    function closeModal() { document.getElementById('modalRoot')?.remove(); }
+    function openModal(html) {
+      closeModal();
+      const root = document.createElement('div');
+      root.id = 'modalRoot'; root.className = 'modal-backdrop';
+      root.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+      root.addEventListener('click', (e) => { if (e.target === root) closeModal(); });
+      document.body.appendChild(root);
+    }
+    function channelModal(strategy, mode, payload) {
+      const chat = payload.channel || {};
+      const bot = snapshot?.bot || {};
+      const notice = payload.notice || {};
+      const ok = !!notice.ok;
+      openModal(`<div class="modal-head"><div><span class="eyebrow">Canal ${mode === 'shadow' ? 'silencieux' : 'public'} configuré</span>
+          <h3 style="margin-top:8px">${esc(chat.title || chat.username || chat.id)}</h3>
+          <p class="small" style="margin:0">Ce canal est maintenant relié à la stratégie « ${esc(strategy.name || strategy.key)} ».</p></div>
+        <span class="tag ${ok ? 'good' : 'warn'}">${ok ? 'Message envoyé' : 'Envoi à vérifier'}</span></div>
+        <dl>
+          <dt>Stratégie</dt><dd>${esc(strategy.name || strategy.key)}</dd>
+          <dt>Type de sortie</dt><dd>${mode === 'shadow' ? 'Canal silencieux (signaux en observation)' : 'Canal public (prédictions activées)'}</dd>
+          <dt>Nom du canal</dt><dd>${esc(chat.title || '—')}</dd>
+          <dt>Identifiant</dt><dd class="mono">${esc(chat.id ?? '—')}</dd>
+          <dt>Lien / @nom</dt><dd>${chat.username ? '@' + esc(chat.username) : '<span class="muted">Canal privé</span>'}</dd>
+          <dt>Type</dt><dd>${esc(chat.type || '—')}</dd>
+          <dt>Droit de publier</dt><dd>${chat.canPost === false ? '<span class="tag bad">Non autorisé</span>' : '<span class="tag good">Autorisé</span>'}</dd>
+          <dt>Bot</dt><dd>${bot.username ? '@' + esc(bot.username) : '<span class="muted">Nom inconnu</span>'}</dd>
+          <dt>Token du bot</dt><dd class="mono">${esc(bot.tokenMasked || 'Non configuré')}</dd>
+          <dt>Confirmation</dt><dd>${ok ? 'Un message de confirmation a été publié dans le canal.' : esc(notice.error || 'Message non envoyé : vérifie que le bot est administrateur du canal.')}</dd>
+        </dl>
+        <div class="modal-actions">
+          <button class="button small primary" onclick="closeModal()">Terminé</button>
+          <button class="button small ghost" onclick="testStrategy('${esc(strategy.key)}','${mode}')">Envoyer un test</button>
+        </div>`);
+    }
+    function predictionRows(list) {
+      return list.map(p => `<tr><td class="mono">#N${esc(p.target)}</td><td>${esc(p.strategyName || p.strategy || '')}</td>
+        <td>${esc(p.label || '')} ${esc(p.suit || '')}</td><td class="mono">${esc(p.step ?? 0)}/${esc(p.maxR ?? 0)}</td>
+        <td><span class="tag ${p.status === 'gagné' ? 'good' : p.status === 'perdu' ? 'bad' : 'warn'}">${esc(p.status)}</span></td>
+        <td>${esc(p.badge || (p.silent ? 'Silencieux' : 'Public'))}</td></tr>`).join('');
+    }
+    function predictionsSection() {
+      const list = (snapshot.predictions || []).slice(0, 20);
+      return `<section class="section"><div class="section-head"><div><span class="eyebrow">Panneau des prédictions</span>
+          <h2 style="margin-top:7px">Les 20 dernières prédictions</h2><p class="small">Toutes stratégies confondues, mises à jour en direct.</p></div>
+          <button class="button small ghost" onclick="reloadView()">Actualiser</button></div>
+        <div class="panel">${list.length ? `<table><thead><tr><th>Tour</th><th>Stratégie</th><th>Signal</th><th>Étape</th><th>État</th><th>Routage</th></tr></thead><tbody>${predictionRows(list)}</tbody></table>` : '<div class="empty">Aucune prédiction pour le moment.</div>'}</div></section>`;
+    }
+    async function reloadView() { await refresh(); route(); }
+    function home() {
+      setNav('home');
+      const ai = snapshot.ai || {};
+      const created = (ai.savedStrategies || []).length;
+      $('#app').innerHTML = `<div class="home-grid">
+        <button class="home-button" onclick="location.hash='#/strategies'">Stratégies<small>${(snapshot.strategies||[]).length} stratégie(s)</small></button>
+        <button class="home-button" onclick="location.hash='#/ai'">Analyseur IA<small>${ai.auto?.running ? 'Analyse en temps réel' : 'Analyseur arrêté'}</small></button>
+        <button class="home-button" onclick="location.hash='#/ai-strategies'">Stratégies IA<small>${created} créée(s)</small></button>
+        <button class="home-button" onclick="location.hash='#/predit'">Prédit IA<small>${(snapshot.predit?.activeCount || 0)} stratégie(s) certifiée(s)</small></button>
+        <button class="home-button" onclick="location.hash='#/diagnostics'">Envois<small>Vérification des canaux</small></button>
+        <button class="home-button" onclick="location.hash='#/database'">Base de données<small>Historique enregistré</small></button>
+        <button class="home-button" onclick="location.hash='#/formats'">Formats<small>88 formats de prédiction</small></button>
+        <button class="home-button" onclick="location.hash='#/settings'">Configuration<small>Bot, base, réglages</small></button>
+      </div>`;
+    }
+    function strategiesPage() { setNav('strategies'); $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Catalogue</span><h2 style="margin-top:7px">Choisir une stratégie</h2></div></div><div class="strategy-grid">${strategyButtons()}</div>`; }
+    function routeRows(s) {
+      const pub = s.publishedChannels || s.channels || [], shadow = s.shadowChannels || [], silence = s.silenceChannels || [];
+      return `<div class="two-col"><div class="route-card public"><div class="route-title"><i></i><strong>Canal public</strong></div><p>Prédictions directes ou activées après deux pertes. Jamais mélangé avec le canal silencieux.</p>
+        <div class="field"><label>ID ou @nom du canal</label><input id="pubChannel" value="${esc(pub.join(', '))}" placeholder="-1001234567890"></div><div class="toolbar"><button class="button small primary" onclick="saveChannel('${s.key}','published')">Vérifier et enregistrer</button><button class="button small danger" onclick="removeChannel('${s.key}','published')">Retirer</button></div></div>
+        <div class="route-card shadow"><div class="route-title"><i></i><strong>Canal silencieux</strong></div><p>Signaux calculés pendant le mode silencieux. Il peut être différent du canal public et ne reçoit jamais de publication publique.</p>
+        <div class="field"><label>ID ou @nom du canal</label><input id="shadowChannel" value="${esc(shadow.join(', '))}" placeholder="-1009876543210"></div><div class="toolbar"><button class="button small primary" onclick="saveChannel('${s.key}','shadow')">Vérifier et enregistrer</button><button class="button small danger" onclick="removeChannel('${s.key}','shadow')">Retirer</button></div></div></div>
+        <div class="route-card shadow" style="margin-top:14px"><div class="route-title"><i></i><strong>Canal du mode d’activation silencieux</strong></div><p>Reçoit les prédictions déclenchées par le mode d’activation silencieux (déclencheur + jeu +N). S’il est vide, le canal silencieux ci-dessus est utilisé.</p>
+        <div class="field"><label>ID ou @nom du canal</label><input id="silenceChannel" value="${esc(silence.join(', '))}" placeholder="-1005555555555"></div><div class="toolbar"><button class="button small primary" onclick="saveChannel('${s.key}','silence')">Vérifier et enregistrer</button><button class="button small danger" onclick="removeChannel('${s.key}','silence')">Retirer</button><button class="button small ghost" onclick="testStrategy('${s.key}','silence')">Tester</button></div></div>`;
+    }
+    const strategyDetails = {};
+    async function strategyPage(key) {
+      let s = snapshot.strategies.find(x => x.key === key); if (!s) return home();
+      try { const full = await api('/api/strategies/' + encodeURIComponent(key)); strategyDetails[key] = full; s = { ...s, ...full }; }
+      catch (e) { s = { ...s, ...(strategyDetails[key] || {}) }; }
+      setNav('strategies'); const c = s.config || {};
+      $('#app').innerHTML = `<div class="section-head"><div><span class="eyebrow">Configuration stratégie</span><h2 style="margin-top:7px">${esc(s.name)}</h2><p class="small">${esc(s.about)}</p></div><span class="tag ${c.enabled ? 'good' : 'bad'}">${c.enabled ? 'Active' : 'En pause'}</span></div>
+        <div class="two-col"><div class="panel"><h3>Règles de calcul</h3><div class="three-col"><div class="field"><label>Format</label><input id="cfgFormat" type="number" min="1" max="${snapshot.formatCount}" value="${c.format || 1}"></div><div class="field"><label>Rattrapages</label><input id="cfgMaxR" type="number" min="0" max="9" value="${c.maxR ?? 2}"></div><div class="field"><label>Avance</label><input id="cfgLead" type="number" min="1" max="9" value="${c.lead ?? 2}"></div></div>
+          ${s.usesB ? `<div class="field"><label>Compteur B</label><input id="cfgB" type="number" min="0" max="20" value="${c.b ?? 3}"></div>` : ''}
+          ${s.key === 'parite' ? `<div class="three-col"><div class="field"><label>Départ</label><input id="cfgStart" type="number" min="1" value="${c.startGame ?? 1}"></div><div class="field"><label>Pas VAR</label><input id="cfgVar" type="number" min="0" value="${c.varStep ?? 0}"></div><div class="field"><label>Décalage</label><input id="cfgDec" type="number" min="1" value="${c.decalage ?? 1}"></div></div>` : ''}
+          ${s.key === 'absente' ? `<div class="field"><label>Jeux sans costume</label><input id="cfgStreak" type="number" min="2" max="10" value="${c.streak ?? 3}"></div>` : ''}
+          ${s.key === 'ombre' ? `<div class="three-col"><div class="field"><label>Absence minimum</label><input id="cfgAbsence" type="number" min="1" max="30" value="${c.absence ?? 4}"></div><div class="field"><label>Périmètre</label><select id="cfgScope"><option value="tous" ${c.scope !== 'joueur' ? 'selected' : ''}>Joueur + banquier</option><option value="joueur" ${c.scope === 'joueur' ? 'selected' : ''}>Joueur uniquement</option></select></div></div>` : ''}
+          <div class="field"><label>Format du message</label><p class="small">Les 88 formats complets sont accessibles depuis le bouton Formats.</p></div><label class="check"><input id="cfgEnabled" type="checkbox" ${c.enabled ? 'checked' : ''}> Activer cette stratégie</label>
+          <div class="toolbar" style="margin-top:18px"><button class="button primary" onclick="saveStrategy('${s.key}')">Enregistrer les réglages</button><button class="button ghost" onclick="resetStrategy('${s.key}')">Réinitialiser</button><button class="button small ghost" onclick="testStrategy('${s.key}','published')">Tester canal public</button><button class="button small ghost" onclick="testStrategy('${s.key}','shadow')">Tester canal silencieux</button></div><div id="strategyMessage"></div></div>
+        <div class="panel"><h3>Filtre après pertes</h3><p class="small">Le mode silencieux calcule et vérifie chaque signal dans l’ombre. Après une première perte, une fenêtre s’ouvre ; après une deuxième perte dans cette fenêtre, les prochaines prédictions sont activées vers le canal public.</p>
+          <label class="check"><input id="cfgSilent" type="checkbox" ${c.silent ? 'checked' : ''}> Activer le mode silencieux</label><div class="field" style="margin-top:18px"><label>Nombre maximum de prédictions après la première perte</label><input id="cfgLossWindow" type="number" min="1" max="20" value="${c.lossWindow ?? 3}"></div><div class="field"><label>Pertes nécessaires avant d’envoyer (1 = envoi dès la première perte)</label><input id="cfgLossTrigger" type="number" min="1" max="5" value="${c.lossTrigger ?? 2}"></div><div class="field"><label>Déblocage automatique après (minutes, 0 = jamais)</label><input id="cfgAutoUnlock" type="number" min="0" max="240" value="${c.autoUnlockMin ?? 10}"></div><div class="field"><label>Après un gain</label><select id="cfgReset"><option value="1" ${c.resetOnWin !== false ? 'selected' : ''}>Revenir au silence</option><option value="0" ${c.resetOnWin === false ? 'selected' : ''}>Continuer l’envoi</option></select></div><div class="notice">${esc(s.gate?.label || 'État du filtre indisponible')}</div><div class="toolbar" style="margin-top:10px"><button class="button small ghost" onclick="unlockStrategy('${esc(s.key || '')}')">Débloquer maintenant</button></div><div class="split small"><span class="muted">Gagnées</span><b style="color:var(--green)">${s.stats?.win ?? 0}</b><span class="muted">Perdues</span><b style="color:var(--red)">${s.stats?.loss ?? 0}</b></div></div></div>
+        <section class="section"><div class="panel"><h3>Déclencheur automatique</h3><p class="small">Disponible pour toutes les stratégies. Le bot attend l’événement choisi (une perte, ou un rattrapage précis), compte ensuite le nombre de prédictions demandé en silence, puis envoie automatiquement la ou les prédictions suivantes dans le canal public. Exemples : « perte + 3 prédictions » ou « rattrapage 2 + 3 prédictions ». Quand ce mode est actif, il remplace le filtre après pertes.</p>
+          <label class="check"><input id="cfgAutoEnabled" type="checkbox" ${c.autoEnabled ? 'checked' : ''}> Activer le déclencheur automatique</label>
+          <div class="three-col" style="margin-top:18px"><div class="field"><label>Événement déclencheur</label><select id="cfgAutoTrigger"><option value="perte" ${c.autoTrigger !== 'rattrapage' ? 'selected' : ''}>Une perte</option><option value="rattrapage" ${c.autoTrigger === 'rattrapage' ? 'selected' : ''}>Un rattrapage</option></select></div>
+          <div class="field"><label>Rattrapage déclencheur</label><input id="cfgAutoRattrapage" type="number" min="1" max="9" value="${c.autoRattrapage ?? 2}"></div>
+          <div class="field"><label>Prédictions comptées avant l’envoi</label><input id="cfgAutoSkip" type="number" min="0" max="20" value="${c.autoSkip ?? 3}"></div></div>
+          <div class="field"><label>Prédictions envoyées une fois le compte atteint</label><input id="cfgAutoSend" type="number" min="1" max="10" value="${c.autoSend ?? 1}"></div>
+          <div class="notice">${esc(s.gate?.auto?.label || 'Déclencheur automatique désactivé')}</div>
+          <div class="toolbar" style="margin-top:10px"><button class="button primary" onclick="saveStrategy('${s.key}')">Enregistrer le déclencheur</button></div></div></section>
+        <section class="section"><div class="panel"><h3>Mode d’activation silencieux</h3><p class="small">Le bot attend le déclencheur choisi : <b>1 ou 2 pertes</b>, ou <b>1 ou 2 fois un rattrapage 2 / 3 / 4</b>. Il retient le numéro du jeu déclencheur et ajoute le décalage configuré : si le jeu #N23 a perdu et que le décalage est +10, le départ est le jeu #N33. À partir de ce numéro, les prédictions partent dans le canal du mode silencieux, jusqu’au nombre demandé (ex. 6), puis la fenêtre repart à zéro et le bot attend un nouveau déclencheur. Quand ce mode est actif, il pilote seul l’envoi de la stratégie.</p>
+          <label class="check"><input id="cfgSilenceMode" type="checkbox" ${c.silenceMode ? 'checked' : ''}> Activer le mode d’activation silencieux</label>
+          <div class="three-col" style="margin-top:18px"><div class="field"><label>Déclencheur</label><select id="cfgSilenceTrigger"><option value="perte" ${c.silenceTrigger !== 'rattrapage' ? 'selected' : ''}>Après des pertes</option><option value="rattrapage" ${c.silenceTrigger === 'rattrapage' ? 'selected' : ''}>Après des rattrapages</option></select></div>
+          <div class="field"><label>Nombre de pertes (1 ou 2)</label><input id="cfgSilenceLossCount" type="number" min="1" max="5" value="${c.silenceLossCount ?? 1}"></div>
+          <div class="field"><label>Rattrapage visé (2, 3 ou 4)</label><input id="cfgSilenceRatLevel" type="number" min="1" max="9" value="${c.silenceRatLevel ?? 2}"></div></div>
+          <div class="three-col"><div class="field"><label>Nombre de fois ce rattrapage (1 ou 2)</label><input id="cfgSilenceRatCount" type="number" min="1" max="5" value="${c.silenceRatCount ?? 1}"></div>
+          <div class="field"><label>Décalage +N après le jeu déclencheur</label><input id="cfgSilenceOffset" type="number" min="1" max="99" value="${c.silenceOffset ?? 10}"></div>
+          <div class="field"><label>Prédictions à envoyer avant l’arrêt</label><input id="cfgSilenceCount" type="number" min="1" max="50" value="${c.silenceCount ?? 6}"></div></div>
+          <div class="notice">${esc(s.gate?.silence?.label || 'Mode d’activation silencieux désactivé')}</div>
+          <div class="toolbar" style="margin-top:10px"><button class="button primary" onclick="saveStrategy('${s.key}')">Enregistrer le mode silencieux</button></div></div></section>
+        <section class="section"><div class="section-head"><div><span class="eyebrow">Séparation des sorties</span><h2 style="margin-top:7px">Canaux de cette stratégie</h2></div><span class="tag">${(s.publishedChannels || s.channels || []).length ? 'Public configuré' : 'Public à configurer'} · ${s.shadowChannels?.length ? 'Silencieux configuré' : 'Silencieux à configurer'}</span></div>${routeRows(s)}</section>
+        ${liveGamesSection(s)}
+        <section class="section"><div class="section-head"><div><span class="eyebrow">Bilan de cette stratégie</span><h2 style="margin-top:7px">Bilan séparé — ${esc(s.name)}</h2></div><span class="tag ${(s.stats?.rate ?? 0) >= 50 ? 'good' : 'warn'}">${esc(String(s.stats?.rate ?? 0))}%</span></div>
+          <div class="panel"><div class="stat-grid"><div class="stat"><span>Gains</span><b style="color:var(--green)">${esc(String(s.stats?.win ?? 0))}</b></div><div class="stat"><span>Pertes</span><b style="color:var(--red)">${esc(String(s.stats?.loss ?? 0))}</b></div><div class="stat"><span>En attente</span><b>${esc(String(s.stats?.pending ?? 0))}</b></div><div class="stat"><span>Taux</span><b>${esc(String(s.stats?.rate ?? 0))}%</b></div></div>
+          <pre style="white-space:pre-wrap;margin-top:14px">${esc(s.bilanPreview || '')}</pre></div></section>
+        <section class="section"><div class="section-head"><div><span class="eyebrow">Historique de cette stratégie</span><h2 style="margin-top:7px">Les 20 dernières prédictions de ${esc(s.name)}</h2><p class="small">Historique séparé : seules les prédictions de cette stratégie sont listées ici.</p></div></div><div class="panel">${(s.predictions || []).length ? `<table><thead><tr><th>Tour</th><th>Signal</th><th>État</th><th>Routage</th><th>Motif</th></tr></thead><tbody>${s.predictions.slice(0,20).map(p => `<tr><td class="mono">#N${esc(p.target)}</td><td>${esc(p.label || '')}</td><td><span class="tag ${p.status === 'gagné' ? 'good' : p.status === 'perdu' ? 'bad' : 'warn'}">${esc(p.status)}</span></td><td>${p.silent ? 'Silencieux' : 'Public'}</td><td class="small">${esc(p.reason || '')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Aucune prédiction enregistrée pour cette stratégie.</div>'}</div></section>`;
+    }
+    function gameRow(g) {
+      const cards = (list) => (list || []).join(' ') || '—';
+      return `<tr><td class="mono">#N${esc(g.number)}</td><td>${esc(cards(g.player))}</td><td>${esc(cards(g.banker))}</td>
+        <td>${esc(g.playerValue ?? '—')} / ${esc(g.bankerValue ?? '—')}</td><td>${esc(g.winner || '—')}</td>
+        <td><span class="tag ${g.finished ? 'good' : 'warn'}">${esc(g.phaseLabel || '')}</span></td>
+        <td>${g.prediction ? `<span class="tag ${g.prediction.status === 'gagné' ? 'good' : g.prediction.status === 'perdu' ? 'bad' : 'warn'}">${esc(g.prediction.label || '')} · ${esc(g.prediction.status)}</span>` : '<span class="muted">—</span>'}</td></tr>`;
+    }
+    function liveGamesSection(s) {
+      const live = s.live || {};
+      const rows = [
+        ...(live.live ? [live.live] : []),
+        ...(live.upcoming || []),
+        ...(live.games || []),
+      ];
+      const counters = (live.counters || []).map(c => `<span class="tag">${esc(c.suit)} ${esc(c.count)}/${esc(c.b)}</span>`).join(' ');
+      return `<section class="section"><div class="section-head"><div><span class="eyebrow">Flux de la stratégie</span><h2 style="margin-top:7px">Jeux en live</h2><p class="small">Le jeu en cours, les tours à venir et les derniers jeux terminés, vus par cette stratégie.</p></div><button class="button small ghost" onclick="refreshStrategyLive('${s.key}')">Actualiser</button></div>
+        <div class="panel" id="liveBox">${counters ? `<div class="live-meta" style="margin-bottom:14px">${counters}</div>` : ''}
+        ${rows.length ? `<table><thead><tr><th>Tour</th><th>Joueur</th><th>Banquier</th><th>Points</th><th>Vainqueur</th><th>État</th><th>Prédiction</th></tr></thead><tbody>${rows.map(gameRow).join('')}</tbody></table>` : '<div class="empty">Aucun jeu reçu pour le moment.</div>'}</div></section>`;
+    }
+    async function refreshStrategyLive(key) { await refresh(); strategyPage(key); }
+    function val(id) { return document.getElementById(id)?.value ?? ''; }
+    async function saveStrategy(key) {
+      const patch = { enabled: $('#cfgEnabled')?.checked, format: val('cfgFormat'), maxR: val('cfgMaxR'), lead: val('cfgLead'), b: val('cfgB'), silent: $('#cfgSilent')?.checked, lossWindow: val('cfgLossWindow'), lossTrigger: val('cfgLossTrigger'), autoUnlockMin: val('cfgAutoUnlock'), resetOnWin: val('cfgReset') !== '0', autoEnabled: $('#cfgAutoEnabled')?.checked, autoTrigger: val('cfgAutoTrigger'), autoRattrapage: val('cfgAutoRattrapage'), autoSkip: val('cfgAutoSkip'), autoSend: val('cfgAutoSend'), silenceMode: $('#cfgSilenceMode')?.checked, silenceTrigger: val('cfgSilenceTrigger'), silenceLossCount: val('cfgSilenceLossCount'), silenceRatLevel: val('cfgSilenceRatLevel'), silenceRatCount: val('cfgSilenceRatCount'), silenceOffset: val('cfgSilenceOffset'), silenceCount: val('cfgSilenceCount'), silenceChannels: ids(val('silenceChannel')), startGame: val('cfgStart'), varStep: val('cfgVar'), decalage: val('cfgDec'), streak: val('cfgStreak'), absence: val('cfgAbsence'), scope: val('cfgScope'), publishedChannels: ids(val('pubChannel')), shadowChannels: ids(val('shadowChannel')) };
+      const pub = new Set(patch.publishedChannels), shadow = new Set(patch.shadowChannels), overlap = [...pub].filter(id => shadow.has(id));
+      if (overlap.length) return toast('Un même canal ne peut pas être public et silencieux pour la même stratégie.', 'error');
+      try { await api(`/api/strategies/${key}`, 'POST', patch); await refresh(); await strategyPage(key); toast('Réglages enregistrés.'); } catch (e) { toast(e.message, 'error'); }
+    }
+    async function saveChannel(key, mode) {
+      const inputId = mode === 'shadow' ? 'shadowChannel' : mode === 'silence' ? 'silenceChannel' : 'pubChannel';
+      const input = document.getElementById(inputId), values = ids(input?.value);
+      if (!values.length) return toast('Renseigne un ID de canal.', 'error');
+      const other = mode === 'silence' ? [] : ids(document.getElementById(mode === 'shadow' ? 'pubChannel' : 'shadowChannel')?.value);
+      if (values.some(v => other.includes(v))) return toast('Les deux canaux doivent être différents.', 'error');
+      try {
+        const r = await api(`/api/strategies/${key}/channel`, 'POST', { channelId: values[0], mode });
+        await refresh(); await strategyPage(key);
+        const strategy = (snapshot.strategies || []).find(x => x.key === key) || { key };
+        channelModal(strategy, mode, r);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+    async function removeChannel(key, mode) { try { await api(`/api/strategies/${key}/channel`, 'DELETE', { mode }); await refresh(); await strategyPage(key); } catch (e) { toast(e.message, 'error'); } }
+    async function resetStrategy(key) { if (!confirm('Réinitialiser cette stratégie ?')) return; try { await api(`/api/strategies/${key}/reset`, 'POST', {}); await refresh(); await strategyPage(key); } catch(e) { toast(e.message, 'error'); } }
+    async function testStrategy(key, mode) { try { const r = await api(`/api/strategies/${key}/test`, 'POST', { mode }); toast(`Message de test envoyé : ${(r.sent || []).join(', ')}`, ''); } catch(e) { toast(e.message, 'error'); } }
+    function aiPage() {
+      setNav('ai'); const aiState = snapshot.ai || {}; const auto = aiState.auto || {};
+      $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Analyse automatique</span><h2 style="margin-top:7px">Analyseur IA en temps réel</h2><p class="small">L’analyseur observe les jeux terminés en continu. Dès qu’il constate quelque chose, il l’écrit dans Résultats. Dès qu’il trouve ou crée une stratégie, elle part dans « Stratégies IA créées ».</p></div></div>
+      <div class="two-col"><div class="panel"><h3>État du moteur</h3>
+        <div class="notice ${auto.running ? '' : 'warn'}">${auto.running ? 'Analyse locale toutes les ' + Math.round((auto.localIntervalMs||15000)/1000) + ' s · enrichissement Pollinations.ai toutes les ' + Math.round((auto.remoteIntervalMs||180000)/60000) + ' min.' : 'Analyseur en pause.'}</div>
+        <div class="split small"><span class="muted">Dernière analyse</span><b>${formatDate(auto.lastLocalAt)}</b><span class="muted">Stratégies créées</span><b>${(aiState.savedStrategies||[]).length}</b></div>
+        ${auto.lastError ? `<div class="notice error">${esc(auto.lastError)}</div>` : ''}
+        <div class="toolbar" style="margin-top:16px"><button class="button primary" onclick="runAuto()">Analyser maintenant</button><button class="button ghost" onclick="toggleAuto(${auto.running ? 'false' : 'true'})">${auto.running ? 'Mettre en pause' : 'Relancer'}</button></div><div id="aiMessage"></div></div>
+      <div class="panel"><h3>Clé Pollinations.ai</h3><div class="notice ${aiState.configured ? '' : 'warn'}">${aiState.configured ? 'Clé en dur active · modèle ' + esc(aiState.model || 'openai') : 'La clé est écrite en dur dans config.js (POLLINATIONS.API_KEY). Tant qu’elle n’est pas remplacée, seule l’analyse locale tourne — elle suffit pour les constats et les stratégies.'}</div>
+        <div class="field"><label>Remplacer la clé sans redéployer</label><input id="aiKey" type="password" autocomplete="off" placeholder="Clé Pollinations.ai"></div><button class="button ghost" onclick="saveAiKey()">Appliquer la clé</button>
+        <div class="field" style="margin-top:16px"><label>Analyse ciblée (optionnel)</label><textarea id="aiObjective" placeholder="Ex. Compare les absences de costumes de la main du joueur."></textarea></div><button class="button orange" onclick="runAnalysis()">Analyse Pollinations.ai</button></div></div>
+      <div class="section-head" style="margin-top:10px"><div><span class="eyebrow">Résultats</span><h2 style="margin-top:7px">Ce que l’analyseur constate</h2></div></div>
+      <div class="section-head" style="margin-top:10px"><div><span class="eyebrow">Découverte</span><h2 style="margin-top:7px">Nouvelles régularités trouvées</h2><p class="small">Au-delà des stratégies existantes : cartes précises suivies d’un costume (a+1, a+2, a+3), points du joueur, enchaînements, séquences de vainqueurs et journées qui se rejouent.</p></div><button class="button orange" onclick="loadPatterns()">Chercher de nouvelles stratégies</button></div>
+      <div id="aiPatterns" class="section"><div class="empty">Lance la recherche pour voir ce que l’analyseur découvre.</div></div>
+      <div class="section-head" style="margin-top:10px"><div><span class="eyebrow">Comparaison</span><h2 style="margin-top:7px">Jours antérieurs vs aujourd’hui</h2><p class="small">L’IA compare les statistiques des journées précédentes avec celle d’aujourd’hui et ne garde que les régularités qui tiennent des deux côtés pour créer des stratégies.</p></div><div class="toolbar"><button class="button primary" onclick="loadCompare()">Comparer les journées</button><button class="button orange" onclick="saveCompare()">Créer les stratégies</button></div></div>
+      <div id="aiCompare" class="section"><div class="empty">Lance la comparaison pour voir les écarts entre les journées.</div></div>
+      <div class="section-head" style="margin-top:10px"><div><span class="eyebrow">Analyse cumulative</span><h2 style="margin-top:7px">Avis tous les 4 jeux (cumul 1 → 1440)</h2><p class="small">Jeux 1 à 4 : premier avis. Jeux 1 à 8 : l’avis reprend tout depuis le début. Puis 1 à 12, 1 à 16… jusqu’au jeu 1440. Tout est enregistré pour la date du jour ; si une stratégie est modifiée, les paliers qui ne sont plus justes sont effacés et recalculés.</p></div><div class="toolbar"><button class="button primary" onclick="runCumulative()">Mettre à jour</button><button class="button ghost" onclick="purgeCumulative()">Effacer l’incorrect</button></div></div>
+      <div id="aiCumulative" class="section"><div class="loading">Chargement des paliers…</div></div>
+      <div class="section-head" style="margin-top:10px"><div><span class="eyebrow">Avis sur les stratégies</span><h2 style="margin-top:7px">L’IA juge les stratégies existantes (cumul complet)</h2><p class="small">L’IA reprend TOUT le cumul de la journée (jeux 1 → 1440) et les résultats réels de chaque stratégie pour dire laquelle garder, laquelle ajuster et laquelle mettre en silencieux.</p></div><div class="toolbar"><button class="button primary" onclick="runAdvice(false)">Mettre à jour</button><button class="button orange" onclick="runAdvice(true)">Avis Pollinations.ai</button></div></div>
+      <div id="aiAdvice" class="section"><div class="loading">Chargement de l’avis…</div></div>
+      <div id="aiResult" class="section"></div>`;
+      renderAiResults(); loadPatterns(); loadCompare(); loadCumulative(); loadAdvice();
+    }
+    function renderAiResults() {
+      const list = (snapshot.ai?.results || []).filter(Boolean);
+      const box = $('#aiResult'); if (!box) return;
+      if (!list.length) { box.innerHTML = '<div class="empty">Aucun constat pour le moment : l’analyseur attend des jeux terminés.</div>'; return; }
+      box.innerHTML = list.map(r => `<div class="panel" style="margin-bottom:14px"><div class="split"><b>${esc(r.title || 'Analyse')}</b><span class="tag">${esc(r.source === 'pollinations' ? 'Pollinations.ai' : 'Moteur local')} · ${r.sample || 0} jeux · ${formatDate(r.generatedAt)}</span></div>
+        <p class="small">${esc(r.observation || '')}</p>
+        ${(r.findings || []).length ? `<ul class="small">${r.findings.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+        ${(r.strategies || []).length ? `<div class="proposals">${r.strategies.map((p,i) => `<article class="proposal"><div class="split"><h3>${esc(p.name || ('Proposition ' + (i+1)))}</h3><span class="tag">${esc(p.compatibleExisting || 'à tester')}</span></div><dl><dt>Logique</dt><dd>${esc(p.logic)}</dd><dt>Déclencheur</dt><dd>${esc(p.trigger)}</dd><dt>Preuve</dt><dd>${esc(p.evidence)}</dd><dt>Risque</dt><dd>${esc(p.risks)}</dd></dl></article>`).join('')}</div>` : ''}
+        ${(r.nextChecks || []).length ? `<div class="notice">${r.nextChecks.map(esc).join(' · ')}</div>` : ''}</div>`).join('');
+    }
+    function renderAiResult() { renderAiResults(); }
+    async function loadPatterns() {
+      const box = $('#aiPatterns'); if (!box) return;
+      box.innerHTML = '<div class="loading">Recherche de nouvelles régularités…</div>';
+      try {
+        const r = await api('/api/ai/patterns?limit=150');
+        if (r.note) { box.innerHTML = `<div class="notice warn">${esc(r.note)}</div>`; return; }
+        const disc = r.discoveries || [];
+        box.innerHTML = `<div class="panel"><div class="split"><b>${disc.length} règle(s) découverte(s)</b><span class="tag">${esc(r.sample)} jeux analysés · ${esc(r.pastDaysCount || 0)} journée(s) comparée(s)</span></div>
+          ${(r.findings || []).length ? `<ul class="small">${r.findings.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '<div class="empty">Aucune régularité nette pour l’instant.</div>'}
+          ${(r.dayMatches || []).length ? `<div class="notice">Journées comparées : ${r.dayMatches.map(m => `${esc(String(m.date).slice(0,10))} (${esc(m.run)} jeux identiques)`).join(' · ')}</div>` : ''}</div>
+          ${(r.replacements || []).length ? `<div class="panel" style="margin-top:12px"><h3>Remplacements de costume conseillés</h3>${r.replacements.map(x => `<div class="notice">${esc(x.text)}</div>`).join('')}</div>` : ''}
+          ${disc.length ? `<div class="proposals">${disc.map(d => `<article class="proposal"><div class="split"><h3>${esc(d.proposal.name)}</h3><span class="tag">${esc(d.rate)}%</span></div><dl><dt>Logique</dt><dd>${esc(d.proposal.logic)}</dd><dt>Déclencheur</dt><dd>${esc(d.proposal.trigger)}</dd><dt>Cible</dt><dd>${esc(d.proposal.target)}</dd><dt>Preuve</dt><dd>${esc(d.proposal.evidence)}</dd><dt>Risque</dt><dd>${esc(d.proposal.risks)}</dd></dl><div class="toolbar" style="margin-top:12px"><button class="button small primary" onclick='saveProposal(${JSON.stringify(d.proposal).replace(/'/g, "&#39;")})'>Enregistrer dans Stratégies IA</button></div></article>`).join('')}</div>` : ''}`;
+      } catch (e) { box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+    }
+    async function loadCompare() {
+      const box = $('#aiCompare'); if (!box) return;
+      box.innerHTML = '<div class="loading">Comparaison des journées…</div>';
+      try {
+        const r = await api('/api/ai/compare-days');
+        const t = r.today || {};
+        const dayCard = (d) => `<tr><td><b>${esc(d.label)}</b></td><td class="mono">${esc(String(d.total))}</td><td>${esc(String(d.winners?.joueur ?? 0))}% / ${esc(String(d.winners?.banquier ?? 0))}%</td><td>${(d.suits||[]).map(x => `${esc(x.suit)} ${esc(String(x.rate))}%`).join(' · ')}</td><td>${esc(String(d.parity?.pair ?? 0))}% pairs</td><td class="mono">${esc(String(d.averagePoint ?? 0))}</td></tr>`;
+        box.innerHTML = `<div class="panel"><div class="split"><b>${esc(String(r.daysCompared || 0))} journée(s) antérieure(s) comparée(s)</b><span class="tag">${formatDate(r.generatedAt)}</span></div>
+          ${r.note ? `<div class="notice warn">${esc(r.note)}</div>` : ''}
+          <table><thead><tr><th>Journée</th><th>Jeux</th><th>Joueur / Banquier</th><th>Costumes</th><th>Parité</th><th>Point moyen</th></tr></thead><tbody>${dayCard({ ...t, label: "Aujourd'hui" })}${(r.past || []).map(dayCard).join('')}</tbody></table>
+          ${(r.differences || []).length ? `<ul class="small" style="margin-top:14px">${r.differences.map(d => `<li>${esc(d.text)}</li>`).join('')}</ul>` : ''}
+          ${(r.stable || []).length ? `<h3 style="margin-top:16px">Régularités qui tiennent hier ET aujourd’hui</h3><table><thead><tr><th>Règle</th><th>Aujourd’hui</th><th>Jours précédents</th><th>Détail</th></tr></thead><tbody>${r.stable.map(x => `<tr><td>${esc(x.from)} → ${esc(x.to)} (a+${esc(String(x.k))})</td><td class="mono">${esc(String(x.todayRate))}%</td><td class="mono">${esc(String(x.pastAverage))}%</td><td class="small">${x.days.map(d => `${esc(d.date)} ${esc(String(d.rate))}%`).join(' · ')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Aucune régularité commune aux deux périodes pour l’instant.</div>'}</div>
+          ${(r.proposals || []).length ? `<div class="proposals">${r.proposals.map(p => `<article class="proposal"><div class="split"><h3>${esc(p.name)}</h3><span class="tag good">stable</span></div><dl><dt>Logique</dt><dd>${esc(p.logic)}</dd><dt>Déclencheur</dt><dd>${esc(p.trigger)}</dd><dt>Cible</dt><dd>${esc(p.target)}</dd><dt>Preuve</dt><dd>${esc(p.evidence)}</dd><dt>Risque</dt><dd>${esc(p.risks)}</dd></dl><div class="toolbar" style="margin-top:12px"><button class="button small primary" onclick='saveProposal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>Enregistrer dans Stratégies IA</button></div></article>`).join('')}</div>` : ''}`;
+      } catch (e) { box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+    }
+    async function saveCompare() {
+      try { const r = await api('/api/ai/compare-days/save', 'POST', {}); toast((r.created || []).length + ' stratégie(s) créée(s) à partir de la comparaison des journées.'); await refresh(); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+    function aiStrategiesPage() {
+      setNav('ai');
+      // seules les stratégies mesurées à 75% de réussite ou plus sont affichées
+      const list = (snapshot.ai?.savedStrategies || []).filter(s => Number(s.rate) >= 75);
+      $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Créées par l’analyseur</span><h2 style="margin-top:7px">Stratégies IA</h2><p class="small">Seules les stratégies dont l’analyse IA mesure <b>au moins 75% de réussite</b> apparaissent ici. Elles ne sont jamais activées seules : à tester d’abord en mode silencieux.</p></div></div>
+      ${list.length ? `<div class="proposals">${list.map(p => `<article class="proposal"><div class="split"><h3>${esc(p.name)}</h3><span class="tag good">${esc(String(p.rate))}% de réussite</span><span class="tag">${esc(p.origin === 'auto-pollinations' ? 'Pollinations.ai' : p.origin === 'auto-local' ? 'Analyse locale' : p.origin === 'cumulative' ? 'Analyse cumulative' : 'Manuelle')}</span></div><dl><dt>Logique</dt><dd>${esc(p.logic)}</dd>${p.trigger ? `<dt>Déclencheur</dt><dd>${esc(p.trigger)}</dd>` : ''}${p.target ? `<dt>Cible</dt><dd>${esc(p.target)}</dd>` : ''}<dt>Preuve</dt><dd>${esc(p.evidence)}</dd><dt>Risque</dt><dd>${esc(p.risks)}</dd><dt>Créée le</dt><dd>${formatDate(p.createdAt)}</dd></dl>${p.explanation ? `<details style="margin-top:12px"><summary style="cursor:pointer">Explication détaillée</summary><pre style="white-space:pre-wrap;margin-top:10px">${esc(p.explanation)}</pre></details>` : ''}<div class="toolbar" style="margin-top:14px"><button class="button small danger" onclick="deleteAiStrategy('${p.id}')">Supprimer</button></div></article>`).join('')}</div>` : '<div class="empty">Aucune stratégie à 75% de réussite ou plus pour l’instant. L’analyseur en ajoutera dès qu’une règle atteindra ce seuil.</div>'}`;
+    }
+    async function loadCumulative() {
+      const box = $('#aiCumulative'); if (!box) return;
+      try {
+        const r = await api('/api/ai/cumulative');
+        const list = r.checkpoints || [];
+        if (!list.length) { box.innerHTML = '<div class="empty">Aucun palier pour l’instant : il faut au moins 4 jeux terminés aujourd’hui.</div>'; return; }
+        box.innerHTML = `<div class="panel"><div class="split"><b>Journée ${esc(r.date || '')}</b><span class="tag">${list.length} palier(s) · ${esc(r.coverage?.label || 'aucun jeu analysé')}${r.purged ? ' · ' + r.purged + ' effacé(s)' : ''}</span></div>
+          ${r.current ? `<div class="notice"><div class="split"><b>Analyse en cours — ${esc(r.current.range || '')}</b><span class="tag">${formatDate(r.current.generatedAt)}</span></div><p class="small">${esc(r.current.verdict || '')}</p></div>` : ''}
+          ${list.map(c => `<div class="notice"><div class="split"><b>Analysé : ${esc(c.range || ('jeux #' + (c.firstGame || '?') + ' → #' + (c.lastGame || '?')))}</b><span class="tag">palier 1 → ${esc(String(c.upTo))} · ${formatDate(c.generatedAt)}</span></div>
+            <p class="small">${esc(c.verdict || '')}</p>
+            ${(c.findings || []).length ? `<ul class="small">${c.findings.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+            ${(c.strategies || []).length ? `<div class="small">Stratégies proposées : ${c.strategies.map(esc).join(' · ')}</div>` : ''}</div>`).join('')}</div>`;
+      } catch (e) { box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+    }
+    async function loadAdvice() {
+      const box = $('#aiAdvice'); if (!box) return;
+      try {
+        const r = await api('/api/ai/strategy-advice');
+        const g = r.global || {};
+        const list = r.advices || [];
+        box.innerHTML = `<div class="panel"><div class="split"><b>Avis global</b><span class="tag">${esc(String(g.checkpoints || 0))} palier(s) · analysé : ${esc(g.range || r.range || 'aucun jeu')}</span></div>
+          <p class="small muted">L’IA a analysé ${esc(g.range || r.range || 'aucun jeu')} — maximum ${esc(String(g.maxGames || 1440))} jeux par journée.</p>
+          <p class="small">${esc(g.advice || 'En attente de données.')}</p>
+          <div class="split small"><span class="muted">Total prédictions</span><b>${esc(String(g.total || 0))}</b><span class="muted">Gains</span><b>${esc(String(g.win || 0))}</b><span class="muted">Pertes</span><b>${esc(String(g.loss || 0))}</b><span class="muted">Taux cumulé</span><b>${esc(String(g.rate || 0))}%</b></div>
+          ${g.summary ? `<div class="notice">${esc(g.summary)}</div>` : ''}</div>
+          ${list.map(a => `<div class="panel" style="margin-top:12px"><div class="split"><b>${esc(a.name)}</b><span class="tag">${esc(a.verdict)} · ${esc(String(a.stats.rate))}% (${esc(String(a.stats.win))}G/${esc(String(a.stats.loss))}P)</span></div>
+            <ul class="small">${(a.advice || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+            ${(a.context || []).length ? `<div class="notice">${a.context.map(esc).join(' · ')}</div>` : ''}
+            <div class="toolbar" style="margin-top:10px"><button class="button small ghost" onclick="unlockStrategy('${esc(a.key)}')">Débloquer l’envoi</button></div></div>`).join('')}
+          ${r.remote ? `<div class="panel" style="margin-top:12px"><div class="split"><b>${esc(r.remote.title || 'Avis Pollinations.ai')}</b><span class="tag">${formatDate(r.remoteAt)}</span></div><p class="small">${esc(r.remote.observation || '')}</p>${(r.remote.findings || []).length ? `<ul class="small">${r.remote.findings.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}</div>` : ''}`;
+      } catch (e) { box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+    }
+    async function runAdvice(remote) { const box = $('#aiAdvice'); if (box) box.innerHTML = '<div class="loading">Analyse en cours…</div>'; try { await api('/api/ai/strategy-advice/run', 'POST', { remote: !!remote }); await loadAdvice(); toast('Avis mis à jour.'); } catch(e) { toast(e.message, 'error'); } }
+    async function unlockStrategy(key) { try { await api('/api/strategies/' + key + '/unlock', 'POST', {}); toast('Envoi débloqué.'); await loadAdvice(); } catch(e) { toast(e.message, 'error'); } }
+
+    async function runCumulative() { try { await api('/api/ai/cumulative/run', 'POST', {}); await loadCumulative(); toast('Paliers mis à jour.'); } catch(e) { toast(e.message, 'error'); } }
+    async function purgeCumulative() { try { const r = await api('/api/ai/cumulative/purge', 'POST', {}); await loadCumulative(); toast((r.removed || 0) + ' palier(s) effacé(s), ' + (r.recalculated || 0) + ' recalculé(s).'); } catch(e) { toast(e.message, 'error'); } }
+    async function runAuto() { try { await api('/api/ai/auto/run', 'POST', {}); await refresh(); aiPage(); toast('Analyse effectuée.'); } catch(e) { toast(e.message, 'error'); } }
+    async function toggleAuto(on) { try { await api('/api/ai/auto/toggle', 'POST', { enabled: on }); await refresh(); aiPage(); } catch(e) { toast(e.message, 'error'); } }
+    async function saveAiKey() { try { await api('/api/ai/key', 'POST', { key: val('aiKey') }); await refresh(); aiPage(); toast('Clé appliquée.'); } catch(e) { toast(e.message, 'error'); } }
+    async function deleteAiStrategy(id) { try { await api('/api/ai/strategies/' + id, 'DELETE'); await refresh(); aiStrategiesPage(); } catch(e) { toast(e.message, 'error'); } }
+
+    function preditPage() {
+      setNav('predit');
+      const p = snapshot.predit || {};
+      const cert = p.certified || [];
+      const strats = p.strategies || [];
+      const retired = p.retired || [];
+      const g = p.globalBilan || {};
+      $('#app').innerHTML = `<div class="section-head" style="padding-top:20px"><div><span class="eyebrow">Prédictions certifiées</span><h2 style="margin-top:7px">Prédit IA</h2><p class="small">Seules les stratégies CRÉÉES PAR L’IA qui atteignent le seuil de réussite configuré (90% à 100%) prédisent ici. Le message envoyé utilise le format de prédiction choisi ci-dessous et ne contient jamais le motif : le motif reste dans l’historique de la stratégie.</p></div><div class="toolbar"><button class="button primary" onclick="preditScan()">Analyser maintenant</button><button class="button ghost" onclick="preditPage()">Actualiser</button></div></div>
+        <div class="stat-grid"><div class="stat"><span>Stratégies ${esc(String(p.minRate ?? 80))}%+ en service</span><b>${esc(String(p.activeCount || 0))}</b></div><div class="stat"><span>Quota 80–99% / 100%</span><b>${esc(String(p.perStrategy ?? 2))} / ∞</b></div><div class="stat"><span>Gains / Pertes</span><b>${esc(String(g.win || 0))} / ${esc(String(g.loss || 0))}</b></div><div class="stat"><span>Dernier envoi</span><b style="font-size:15px">${formatDate(p.lastSentAt)}</b></div></div>
+        <div class="two-col">
+          <div class="route-card public"><div class="route-title"><i></i><strong>Canal Telegram du panneau</strong></div><p>Ce canal reçoit uniquement les prédictions des stratégies IA certifiées au seuil configuré.</p>
+            <div class="field"><label>ID ou @nom du canal</label><input id="preditChannel" value="${esc((p.channels || []).join(', '))}" placeholder="-1001234567890"></div>
+            <div class="toolbar"><button class="button small primary" onclick="savePreditChannel()">Vérifier et enregistrer</button><button class="button small ghost" onclick="preditTest()">Envoyer un test</button><button class="button small danger" onclick="removePreditChannel()">Retirer</button></div>
+            ${p.lastError ? `<div class="notice error" style="margin-top:12px">${esc(p.lastError)}</div>` : ''}</div>
+          <div class="panel"><h3>Réglages du panneau</h3>
+            <label class="check"><input id="preditEnabled" type="checkbox" ${p.enabled ? 'checked' : ''}> Activer les prédictions automatiques</label>
+            <div class="three-col" style="margin-top:16px">
+              <div class="field"><label>Réussite minimum (%)</label><input id="preditMinRate" type="number" min="80" max="100" value="${esc(String(p.minRate ?? 80))}"><p class="small">80% minimum : en dessous, la stratégie IA n'entre pas dans les prédictions.</p></div>
+              <div class="field"><label>Observations minimum</label><input id="preditSample" type="number" min="3" max="60" value="${esc(String(p.minSample ?? 6))}"></div>
+              <div class="field"><label>Rattrapages</label><input id="preditMaxR" type="number" min="0" max="5" value="${esc(String(p.maxR ?? 1))}"></div>
+              <div class="field"><label>Format de prédiction (1 → ${esc(String(snapshot.formatCount || 88))})</label><input id="preditFormat" type="number" min="1" max="${esc(String(snapshot.formatCount || 88))}" value="${esc(String(p.format ?? 1))}"></div>
+            </div>
+            <div class="field"><label>Nombre de prédictions par stratégie créée</label><input id="preditPerStrategy" type="number" min="1" max="50" value="${esc(String(p.perStrategy ?? 2))}"><p class="small">S'applique aux stratégies IA de <b>80% à 99%</b> : elles prédisent ce nombre de fois puis se mettent en pause. Une stratégie mesurée à <b>100%</b> prédit en continu, sans quota, jusqu'à sa première perte (elle est alors retirée).</p></div>
+            <label class="check"><input id="preditCombo" type="checkbox" ${p.requireCombo ? 'checked' : ''}> N’envoyer que les signaux confirmés par deux stratégies à 100%</label>
+            <div class="notice" style="margin-top:14px"><b>Aperçu du format ${esc(String(p.format ?? 1))}</b><pre style="white-space:pre-wrap;margin:8px 0 0">${esc(p.formatPreview || '')}</pre></div>
+            <div class="toolbar" style="margin-top:16px"><button class="button primary" onclick="savePredit()">Enregistrer</button></div></div>
+        </div>
+        <section class="section"><div class="section-head"><div><span class="eyebrow">Certifiées</span><h2 style="margin-top:7px">Stratégies IA à ${esc(String(p.minRate ?? 80))}% ou plus en service</h2></div><span class="tag ${cert.length ? 'good' : 'warn'}">${cert.length} en service</span></div>
+          ${cert.length ? `<div class="proposals">${cert.map(c => `<article class="proposal"><div class="split"><h3>${esc(c.name)}</h3><span class="tag good">${esc(String(c.rate))}% · ${esc(String(c.sample))} obs.</span></div><dl><dt>Motif</dt><dd>${esc(c.motif || c.finding || '')}</dd><dt>Palier</dt><dd>${esc(c.tier || '')}</dd><dt>Prédictions utilisées</dt><dd>${esc(String(c.used || 0))} / ${esc(String(c.quota || 0))}</dd><dt>Résultats</dt><dd>${esc(String(c.win || 0))} gain(s) · ${esc(String(c.loss || 0))} perte(s)</dd><dt>Certifiée le</dt><dd>${formatDate(c.certifiedAt)}</dd></dl></article>`).join('')}</div>` : `<div class="empty">Aucune stratégie IA au-dessus de ${esc(String(p.minRate ?? 80))}% pour le moment : l’analyseur continue de chercher.</div>`}</section>
+        ${strats.map(st => `<section class="section"><div class="section-head"><div><span class="eyebrow">Stratégie IA</span><h2 style="margin-top:7px">${esc(st.name)}</h2><p class="small">Motif : ${esc(st.motif || '')}</p><p class="small">Palier : ${esc(st.tier || '')}</p>${st.explanation ? `<details style="margin-top:6px"><summary>Explication détaillée</summary><pre style="white-space:pre-wrap">${esc(st.explanation)}</pre></details>` : ''}</div><span class="tag ${st.active ? 'good' : 'warn'}">${st.active ? 'En service' : st.waiting ? 'Quota atteint' : 'Retirée'} · ${esc(String(st.used))}/${esc(String(st.quota))}</span></div>
+          <div class="panel"><div class="split"><b>Bilan de cette stratégie</b><span class="tag">${esc(String(st.bilan?.rate ?? 0))}% · ${esc(String(st.bilan?.win ?? 0))} gain(s) · ${esc(String(st.bilan?.loss ?? 0))} perte(s)</span></div>
+            <pre style="white-space:pre-wrap">${esc(st.bilanText || '')}</pre>
+            <h3 style="margin-top:16px">20 dernières prédictions de cette stratégie</h3>
+            ${(st.predictions || []).length ? `<table><thead><tr><th>Jeu</th><th>Costume</th><th>Étape</th><th>État</th><th>Envoi</th><th>Motif (jamais envoyé)</th></tr></thead><tbody>${st.predictions.map(x => `<tr><td class="mono">#N${esc(x.target)}</td><td>${esc(x.suit)}</td><td class="mono">${esc(String(x.step ?? 0))}/${esc(String(x.maxR ?? 0))}</td><td><span class="tag ${x.status === 'gagné' ? 'good' : x.status === 'perdu' ? 'bad' : 'warn'}">${esc(x.status)}</span></td><td>${x.published ? 'Publié' : 'Non publié'}</td><td class="small">${esc(x.motif || '')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Aucune prédiction pour cette stratégie.</div>'}
+            ${st.reason ? `<div class="notice warn" style="margin-top:12px">${esc(st.reason)}</div>` : ''}</div></section>`).join('')}
+        ${retired.length ? `<section class="section"><div class="section-head"><div><span class="eyebrow">Retirées</span><h2 style="margin-top:7px">Stratégies sorties du panneau</h2></div></div><div class="panel">${retired.map(r => `<div class="notice warn"><b>${esc(r.name)}</b> — ${esc(r.reason || '')} <span class="muted">${formatDate(r.retiredAt)}</span></div>`).join('')}</div></section>` : ''}`;
+    }
+    async function savePredit() {
+      try { await api('/api/predit/config', 'POST', { enabled: $('#preditEnabled')?.checked, requireCombo: $('#preditCombo')?.checked, minRate: val('preditMinRate'), minSample: val('preditSample'), maxR: val('preditMaxR'), format: val('preditFormat'), perStrategy: val('preditPerStrategy'), channels: ids(val('preditChannel')) }); await refresh(); preditPage(); toast('Panneau Prédit enregistré.'); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+    async function savePreditChannel() {
+      const list = ids(val('preditChannel'));
+      if (!list.length) return toast('Renseigne un ID de canal.', 'error');
+      try { const r = await api('/api/predit/channel', 'POST', { channelId: list[0] }); await refresh(); preditPage(); toast(`Canal ${r.channel?.title || list[0]} relié au panneau Prédit.`); }
+      catch (e) { toast(e.message, 'error'); }
+    }
+    async function removePreditChannel() { try { await api('/api/predit/channel', 'DELETE'); await refresh(); preditPage(); } catch (e) { toast(e.message, 'error'); } }
+    async function preditTest() { try { const r = await api('/api/predit/test', 'POST', {}); toast('Test envoyé : ' + (r.sent || []).join(', ')); } catch (e) { toast(e.message, 'error'); } }
+    async function preditScan() { try { await api('/api/predit/scan', 'POST', {}); await refresh(); preditPage(); toast('Analyse du panneau effectuée.'); } catch (e) { toast(e.message, 'error'); } }
+    async function diagnosticsPage() {
+      setNav('settings'); $('#app').innerHTML = '<div class="loading">Vérification des canaux…</div>';
+      try {
+        const r = await api('/api/diagnostics/channels');
+        const row = (c) => `<span class="tag ${c.ok ? 'good' : 'bad'}">${esc(c.title || c.id)}${c.ok ? '' : ' — ' + esc(c.error || 'droit de publier manquant')}</span>`;
+        $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Vérification</span><h2 style="margin-top:7px">Envoi des prédictions</h2><p class="small">Contrôle du token, des canaux publics et silencieux de chaque stratégie.</p></div></div>
+        <div class="notice ${r.bot.tokenSet ? '' : 'warn'}">${r.bot.tokenSet ? 'Token Telegram enregistré' + (r.bot.username ? ' (@' + esc(r.bot.username) + ')' : '') : 'Aucun token Telegram : aucune prédiction ne peut partir.'}</div>
+        ${r.strategies.map(s => `<div class="panel" style="margin-bottom:12px"><div class="split"><b>${esc(s.name)}</b><span class="tag ${s.ready ? 'good' : 'warn'}">${s.ready ? 'Envoi opérationnel' : 'À configurer'}</span></div>
+          <p class="small">Public : ${s.published.length ? s.published.map(row).join(' ') : '<span class="muted">aucun canal</span>'}</p>
+          <p class="small">Silencieux : ${s.shadow.length ? s.shadow.map(row).join(' ') : '<span class="muted">aucun canal</span>'}</p>
+          <p class="small muted">Messages envoyés : ${s.sentCount} · dernier ${formatDate(s.lastSentAt)}${s.sendError ? ' · ⚠️ ' + esc(s.sendError) : ''}</p>
+          <div class="toolbar"><button class="button small ghost" onclick="testStrategy('${s.key}','published')">Tester public</button><button class="button small ghost" onclick="testStrategy('${s.key}','shadow')">Tester silencieux</button></div></div>`).join('')}`;
+      } catch(e) { $('#app').innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+    }
+    async function databasePage() {
+      setNav('database'); $('#app').innerHTML = '<div class="loading">Lecture de la base de données…</div>';
+      let d;
+      try { d = await api('/api/db/dump?limit=25'); }
+      catch (e) {
+        $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Stockage</span><h2 style="margin-top:7px">Base de données</h2></div><a class="button small ghost" href="#/settings">Configuration</a></div><div class="notice error">${esc(e.message)}</div><p class="small">Renseigne l’URL PostgreSQL dans la page Configuration pour activer l’enregistrement permanent (token, canaux, jeux, prédictions).</p>`;
+        return;
+      }
+      const c = d.counts || {};
+      const table = (rows, cols) => rows.length
+        ? `<table><thead><tr>${cols.map(x => `<th>${esc(x[0])}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(x => `<td>${esc(x[1](r))}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+        : '<div class="empty">Aucune ligne enregistrée.</div>';
+      $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Stockage</span><h2 style="margin-top:7px">Base de données</h2><p class="small">Tout ce que le bot enregistre : jeux, prédictions, stratégies et configurations (token, ID de canal, réglages).</p></div><button class="button small ghost" onclick="databasePage()">Actualiser</button></div>
+        <div class="stat-grid"><div class="stat"><span>Jeux</span><b>${esc(c.games ?? 0)}</b></div><div class="stat"><span>Prédictions</span><b>${esc(c.predictions ?? 0)}</b></div><div class="stat"><span>Stratégies</span><b>${esc(c.strategies ?? 0)}</b></div><div class="stat"><span>Réglages</span><b>${esc(c.settings ?? 0)}</b></div></div>
+        <section class="section"><h2>Configurations enregistrées</h2><div class="panel">${table(d.settings || [], [['Clé', r => r.key], ['Valeur', r => String(r.value ?? '').slice(0, 220)]])}
+          <div class="toolbar" style="margin-top:14px"><button class="button primary" onclick="saveConfigs()">Enregistrer les configurations en base</button><button class="button ghost" onclick="loadConfigs()">Recharger depuis la base</button></div></div></section>
+        <section class="section"><h2>Stratégies enregistrées</h2><div class="panel">${table(d.strategies || [], [['Clé', r => r.key], ['Nom', r => r.name], ['Active', r => r.enabled ? 'oui' : 'non'], ['Canal public', r => (r.config?.publishedChannels || []).join(', ') || '—'], ['Canal silencieux', r => (r.config?.shadowChannels || []).join(', ') || '—'], ['Mise à jour', r => formatDate(r.updated_at)]])}</div></section>
+        <section class="section"><h2>Derniers jeux</h2><div class="panel">${table(d.games || [], [['Tour', r => '#N' + r.number], ['Date', r => String(r.played_on).slice(0,10)], ['Joueur', r => (r.player_cards||[]).join(' ')], ['Points', r => `${r.player_value ?? '—'} / ${r.banker_value ?? '—'}`], ['Vainqueur', r => r.winner || '—']])}</div></section>
+        <section class="section"><h2>Dernières prédictions</h2><div class="panel">${table(d.predictions || [], [['Stratégie', r => r.strategy], ['Tour', r => '#N' + r.target], ['Signal', r => r.label || r.suit], ['État', r => r.status], ['Rattrapage', r => r.rattrapage ?? '—'], ['Créée', r => formatDate(r.created_at)]])}</div></section>
+        <section class="section"><h2>Dates couvertes</h2><div class="panel">${table(d.dates || [], [['Date', r => String(r.played_on).slice(0,10)], ['Jeux', r => r.total]])}</div></section>
+        <section class="section"><h2>Requête de lecture</h2><div class="panel"><div class="field"><label>SELECT uniquement</label><input id="sqlQuery" placeholder="select * from games order by number desc limit 10"></div><button class="button ghost" onclick="runSql()">Exécuter</button><div id="sqlResult" style="margin-top:14px"></div></div></section>`;
+    }
+    async function saveConfigs() { try { const r = await api('/api/configs/save', 'POST', {}); toast('Configurations enregistrées en base : ' + (r.saved || []).join(', ')); await databasePage(); } catch(e) { toast(e.message, 'error'); } }
+    async function loadConfigs() { try { const r = await api('/api/configs/load', 'POST', {}); toast('Configurations relues : ' + ((r.loaded || []).join(', ') || 'aucune') + ((r.restored || []).length ? ' · restauré : ' + r.restored.join(', ') : '')); await refresh(); await databasePage(); } catch(e) { toast(e.message, 'error'); } }
+    async function runSql() {
+      const box = $('#sqlResult'); if (!box) return;
+      try {
+        const r = await api('/api/db/query', 'POST', { sql: val('sqlQuery') });
+        const rows = r.rows || [];
+        if (!rows.length) { box.innerHTML = '<div class="empty">Aucun résultat.</div>'; return; }
+        const cols = Object.keys(rows[0]);
+        box.innerHTML = `<table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${cols.map(c => `<td>${esc(typeof row[c] === 'object' ? JSON.stringify(row[c]) : row[c])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+      } catch (e) { box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+    }
+    async function runAnalysis() { const box = $('#aiMessage'); if (box) box.innerHTML = '<div class="notice">Analyse en cours…</div>'; try { await api('/api/ai/analyze', 'POST', { limit: 60, objective: val('aiObjective') }); await refresh(); aiPage(); } catch(e) { if (box) box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; } }
+    async function saveProposal(proposal) { try { await api('/api/ai/strategies', 'POST', { proposal }); await refresh(); toast('Plan de stratégie enregistré, désactivé par sécurité.'); } catch(e) { toast(e.message, 'error'); } }
+    async function formatsPage() { setNav('formats'); $('#app').innerHTML = '<div class="loading">Chargement des formats…</div>'; try { const r = await api('/api/formats'); $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Bibliothèque Telegram</span><h2 style="margin-top:7px">Formats de prédiction</h2><p class="small">${r.count} formats affichés avec leur aperçu réel.</p></div><input id="formatSearch" style="max-width:250px" placeholder="Rechercher un format..." oninput="filterFormats()"></div><div id="formatGrid" class="format-grid">${r.formats.map(f => `<article class="format-card" data-search="${esc(`${f.id} ${f.label} ${f.preview}`.toLowerCase())}"><b>FORMAT ${f.id}</b><pre>${esc(f.preview)}</pre></article>`).join('')}</div>`; } catch(e) { toast(e.message, 'error'); } }
+    function filterFormats() { const q = val('formatSearch').toLowerCase(); document.querySelectorAll('.format-card').forEach(c => c.style.display = c.dataset.search.includes(q) ? '' : 'none'); }
+    function settingsPage() { setNav('settings'); const bot = snapshot.bot || {}, db = snapshot.db || {}; $('#app').innerHTML = `<div class="section-head" style="padding-top:38px"><div><span class="eyebrow">Système</span><h2 style="margin-top:7px">Configuration générale</h2><p class="small">Les réglages de chaque stratégie restent dans sa propre fiche.</p></div></div><div class="two-col"><div class="panel"><h3>Bot Telegram</h3><div class="notice ${bot.tokenSet ? '' : 'warn'}">${bot.tokenSet ? `Token enregistré : ${esc(bot.tokenMasked || 'masqué')}` : 'Aucun token Telegram configuré.'}</div><div class="field"><label>Token du bot</label><input id="botToken" type="password" autocomplete="off" placeholder="Coller le token Telegram pour le remplacer"></div><div class="field"><label>ID administrateur</label><input id="adminId" type="number" value="${esc(bot.adminId || '')}"></div><div class="field"><label>ID du canal principal</label><input id="mainChannel" placeholder="-1001234567890 ou @moncanal" value="${esc((snapshot.channels || []).filter(c => c.active).map(c => c.id).join(', '))}"></div><div class="toolbar"><button class="button primary" onclick="saveBot()">Enregistrer et redémarrer</button><button class="button orange" onclick="saveMainChannel()">Vérifier le canal et envoyer un message</button></div><div id="settingsMessage"></div></div><div class="panel"><h3>Base de données</h3><div class="notice ${db.ready ? '' : 'warn'}">${db.ready ? 'PostgreSQL connectée et prête.' : 'Base non connectée : le bot peut fonctionner avec l’historique en mémoire.'}</div><div class="field"><label>DATABASE_URL (optionnel)</label><input id="dbUrl" type="password" autocomplete="off" placeholder="URL PostgreSQL Render"></div><button class="button ghost" onclick="saveDb()">Connecter la base</button><p class="small" style="margin-top:15px">Sur Render, préfère la variable d’environnement <code>DATABASE_URL</code>.</p></div></div><div class="section"><div class="panel"><h3>Réglages globaux historiques</h3><div class="three-col"><div class="field"><label>Compteur B</label><input id="globalB" type="number" min="1" value="${snapshot.b}"></div><div class="field"><label>Rattrapages</label><input id="globalR" type="number" min="0" max="9" value="${snapshot.maxR}"></div><div class="field"><label>Format par défaut</label><input id="globalF" type="number" min="1" max="${snapshot.formatCount}" value="${snapshot.format}"></div></div><button class="button primary" onclick="saveGlobals()">Enregistrer les réglages globaux</button>  </div></div>`; }
+    async function saveBot() { try { if (val('botToken')) await api('/api/bot/token', 'POST', { token: val('botToken') }); await api('/api/bot/admin', 'POST', { adminId: val('adminId') }); await refresh(); settingsPage(); toast('Configuration Telegram enregistrée.'); } catch(e) { toast(e.message, 'error'); } }
+    async function saveMainChannel() {
+      const box = $('#settingsMessage');
+      try {
+        const r = await api('/api/channels/main', 'POST', { channelId: val('mainChannel') });
+        await refresh(); settingsPage();
+        toast(`Canal ${r.chat?.title || r.id} configuré : message de confirmation envoyé.`);
+      } catch (e) { if (box) box.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; toast(e.message, 'error'); }
+    }
+    async function saveDb() { try { await api('/api/db', 'POST', { url: val('dbUrl') }); await refresh(); settingsPage(); toast('Base connectée.'); } catch(e) { toast(e.message, 'error'); } }
+    async function saveGlobals() { try { await api('/api/setb', 'POST', { b: val('globalB') }); await api('/api/setmaxr', 'POST', { maxR: val('globalR') }); await api('/api/setformat', 'POST', { format: val('globalF') }); await refresh(); settingsPage(); toast('Réglages globaux enregistrés.'); } catch(e) { toast(e.message, 'error'); } }
+    function injectBack() {
+      const app = $('#app');
+      if (!app) return;
+      if (!location.hash || location.hash === '#/' || location.hash === '#') return;
+      if (app.querySelector('.backbar')) return;
+      const bar = document.createElement('div');
+      bar.className = 'backbar';
+      bar.innerHTML = '<a class="home-back" href="#/">⬅ Retour à l\'accueil</a>';
+      app.prepend(bar);
+    }
+    async function route() {
+      try {
+        await refresh();
+        const h = location.hash || '#/';
+        if (h.startsWith('#/strategy/')) await strategyPage(decodeURIComponent(h.split('/')[2]));
+        else if (h === '#/strategies') strategiesPage();
+        else if (h === '#/ai') aiPage();
+        else if (h === '#/ai-strategies') aiStrategiesPage();
+        else if (h === '#/predit') preditPage();
+        else if (h === '#/diagnostics') await diagnosticsPage();
+        else if (h === '#/database') await databasePage();
+        else if (h === '#/formats') await formatsPage();
+        else if (h === '#/settings') settingsPage();
+        else home();
+      } catch(e) { $('#app').innerHTML = `<div class="notice error">${esc(e.message)}</div>`; }
+      injectBack();
+    }
+    new MutationObserver(() => injectBack()).observe($('#app'), { childList: true });
+    window.addEventListener('hashchange', route); route(); setInterval(() => { if (!location.hash || location.hash === '#/') route(); }, 8000);
+  </script>
 </body>
 </html>

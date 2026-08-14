@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: bot-baccara-1xbet
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      # DATABASE_URL est déjà écrite en dur dans config.js
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_ID
+        sync: false

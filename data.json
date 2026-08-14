@@ -1,0 +1,426 @@
+{
+  "botToken": "7870922727:AAGXEEWNB7zz8M_k8WEyfEmEDMKxoFAaBwM",
+  "adminId": 1190237801,
+  "channels": [],
+  "activeChannels": [],
+  "B": 3,
+  "maxR": 3,
+  "hand": "joueur",
+  "format": 1,
+  "template": null,
+  "strategies": {
+    "costume": {
+      "token": null,
+      "bilan": true,
+      "silent": false,
+      "lossWindow": 3,
+      "lossTrigger": 2,
+      "autoUnlockMin": 10,
+      "resetOnWin": true,
+      "autoEnabled": false,
+      "autoTrigger": "perte",
+      "autoRattrapage": 2,
+      "autoSkip": 3,
+      "autoSend": 1,
+      "silenceMode": false,
+      "silenceTrigger": "perte",
+      "silenceLossCount": 1,
+      "silenceRatLevel": 2,
+      "silenceRatCount": 1,
+      "silenceOffset": 10,
+      "silenceCount": 6,
+      "silenceChannels": [],
+      "silenceChannelInfos": [],
+      "publishedChannels": [
+        -1003329818758
+      ],
+      "shadowChannels": [],
+      "publishedChannelInfos": [
+        {
+          "id": -1003329818758,
+          "type": "channel",
+          "error": null,
+          "title": "KOUAMÉ & JOKER PRÉDICTION",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 8
+        }
+      ],
+      "shadowChannelInfos": [],
+      "enabled": true,
+      "format": 1,
+      "maxR": 3,
+      "b": 3,
+      "lead": 2,
+      "template": null,
+      "channels": [
+        -1003329818758
+      ],
+      "scope": "tous",
+      "streak": 3,
+      "absence": 4,
+      "varStep": 0,
+      "decalage": 1,
+      "sentCount": 40,
+      "startGame": 1,
+      "lastSentAt": 1786639511179,
+      "channelInfos": [
+        {
+          "id": -1003329818758,
+          "type": "channel",
+          "error": null,
+          "title": "KOUAMÉ & JOKER PRÉDICTION",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 8
+        }
+      ]
+    },
+    "dominant": {
+      "token": null,
+      "bilan": true,
+      "silent": false,
+      "lossWindow": 3,
+      "lossTrigger": 2,
+      "autoUnlockMin": 10,
+      "resetOnWin": true,
+      "autoEnabled": false,
+      "autoTrigger": "perte",
+      "autoRattrapage": 2,
+      "autoSkip": 3,
+      "autoSend": 1,
+      "silenceMode": false,
+      "silenceTrigger": "perte",
+      "silenceLossCount": 1,
+      "silenceRatLevel": 2,
+      "silenceRatCount": 1,
+      "silenceOffset": 10,
+      "silenceCount": 6,
+      "silenceChannels": [],
+      "silenceChannelInfos": [],
+      "publishedChannels": [
+        -1003329818758
+      ],
+      "shadowChannels": [],
+      "publishedChannelInfos": [
+        {
+          "id": -1003329818758,
+          "type": "channel",
+          "error": null,
+          "title": "KOUAMÉ & JOKER PRÉDICTION",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 8
+        }
+      ],
+      "shadowChannelInfos": [],
+      "enabled": true,
+      "format": 1,
+      "maxR": 3,
+      "b": 0,
+      "lead": 2,
+      "template": null,
+      "channels": [
+        -1003329818758
+      ],
+      "scope": "tous",
+      "streak": 3,
+      "absence": 4,
+      "varStep": 0,
+      "decalage": 1,
+      "sentCount": 16,
+      "startGame": 1,
+      "lastSentAt": 1786639442106,
+      "channelInfos": [
+        {
+          "id": -1003329818758,
+          "type": "channel",
+          "error": null,
+          "title": "KOUAMÉ & JOKER PRÉDICTION",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 8
+        }
+      ]
+    },
+    "matchnul": {
+      "token": null,
+      "bilan": true,
+      "silent": false,
+      "lossWindow": 3,
+      "lossTrigger": 2,
+      "autoUnlockMin": 10,
+      "resetOnWin": true,
+      "autoEnabled": false,
+      "autoTrigger": "perte",
+      "autoRattrapage": 2,
+      "autoSkip": 3,
+      "autoSend": 1,
+      "silenceMode": false,
+      "silenceTrigger": "perte",
+      "silenceLossCount": 1,
+      "silenceRatLevel": 2,
+      "silenceRatCount": 1,
+      "silenceOffset": 10,
+      "silenceCount": 6,
+      "silenceChannels": [],
+      "silenceChannelInfos": [],
+      "publishedChannels": [
+        -1002887687164
+      ],
+      "shadowChannels": [],
+      "publishedChannelInfos": [
+        {
+          "id": -1002887687164,
+          "type": "channel",
+          "error": null,
+          "title": "⚜️꧁•⊹٭ 𝕮𝖆𝖗𝖙𝖊 𝖊𝖓𝖘𝖊𝖎𝖌𝖓𝖊- 𝕭𝖔𝖙 𝒥💍𝒦𝐸𝑅 ٭⊹•꧂⚜️",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 4
+        }
+      ],
+      "shadowChannelInfos": [],
+      "enabled": true,
+      "format": 78,
+      "formatDistribution": 79,
+      "maxR": 2,
+      "b": 0,
+      "lead": 1,
+      "template": null,
+      "channels": [
+        -1002887687164
+      ],
+      "sentCount": 12,
+      "lastSentAt": 1786639268310,
+      "channelInfos": [
+        {
+          "id": -1002887687164,
+          "type": "channel",
+          "error": null,
+          "title": "⚜️꧁•⊹٭ 𝕮𝖆𝖗𝖙𝖊 𝖊𝖓𝖘𝖊𝖎𝖌𝖓𝖊- 𝕭𝖔𝖙 𝒥💍𝒦𝐸𝑅 ٭⊹•꧂⚜️",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 4
+        }
+      ]
+    },
+    "parite": {
+      "token": null,
+      "bilan": true,
+      "silent": false,
+      "lossWindow": 3,
+      "lossTrigger": 2,
+      "autoUnlockMin": 10,
+      "resetOnWin": true,
+      "autoEnabled": false,
+      "autoTrigger": "perte",
+      "autoRattrapage": 2,
+      "autoSkip": 3,
+      "autoSend": 1,
+      "silenceMode": false,
+      "silenceTrigger": "perte",
+      "silenceLossCount": 1,
+      "silenceRatLevel": 2,
+      "silenceRatCount": 1,
+      "silenceOffset": 10,
+      "silenceCount": 6,
+      "silenceChannels": [],
+      "silenceChannelInfos": [],
+      "publishedChannels": [
+        -1003848194038
+      ],
+      "shadowChannels": [],
+      "publishedChannelInfos": [
+        {
+          "id": -1003848194038,
+          "type": "channel",
+          "error": null,
+          "title": "VIP 🏆",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 3
+        }
+      ],
+      "shadowChannelInfos": [],
+      "enabled": true,
+      "format": 80,
+      "maxR": 3,
+      "b": 0,
+      "lead": 1,
+      "startGame": 1,
+      "varStep": 3,
+      "decalage": 3,
+      "template": null,
+      "channels": [
+        -1003848194038
+      ],
+      "scope": "tous",
+      "streak": 3,
+      "absence": 4,
+      "sentCount": 12,
+      "lastSentAt": 1786639562184,
+      "channelInfos": [
+        {
+          "id": -1003848194038,
+          "type": "channel",
+          "error": null,
+          "title": "VIP 🏆",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 3
+        }
+      ]
+    },
+    "absente": {
+      "token": null,
+      "bilan": true,
+      "silent": false,
+      "lossWindow": 3,
+      "lossTrigger": 2,
+      "autoUnlockMin": 10,
+      "resetOnWin": true,
+      "autoEnabled": false,
+      "autoTrigger": "perte",
+      "autoRattrapage": 2,
+      "autoSkip": 3,
+      "autoSend": 1,
+      "silenceMode": false,
+      "silenceTrigger": "perte",
+      "silenceLossCount": 1,
+      "silenceRatLevel": 2,
+      "silenceRatCount": 1,
+      "silenceOffset": 10,
+      "silenceCount": 6,
+      "silenceChannels": [],
+      "silenceChannelInfos": [],
+      "publishedChannels": [],
+      "shadowChannels": [],
+      "publishedChannelInfos": [],
+      "shadowChannelInfos": [],
+      "enabled": true,
+      "format": 1,
+      "maxR": 2,
+      "b": 0,
+      "lead": 2,
+      "streak": 3,
+      "template": null,
+      "channels": []
+    },
+    "ombre": {
+      "token": null,
+      "bilan": true,
+      "silent": true,
+      "lossWindow": 3,
+      "lossTrigger": 2,
+      "autoUnlockMin": 10,
+      "resetOnWin": true,
+      "autoEnabled": false,
+      "autoTrigger": "perte",
+      "autoRattrapage": 2,
+      "autoSkip": 3,
+      "autoSend": 1,
+      "silenceMode": false,
+      "silenceTrigger": "perte",
+      "silenceLossCount": 1,
+      "silenceRatLevel": 2,
+      "silenceRatCount": 1,
+      "silenceOffset": 10,
+      "silenceCount": 6,
+      "silenceChannels": [],
+      "silenceChannelInfos": [],
+      "publishedChannels": [
+        -1003848194038
+      ],
+      "shadowChannels": [],
+      "publishedChannelInfos": [
+        {
+          "id": -1003848194038,
+          "type": "channel",
+          "error": null,
+          "title": "VIP 🏆",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 3
+        }
+      ],
+      "shadowChannelInfos": [],
+      "enabled": true,
+      "format": 84,
+      "maxR": 3,
+      "b": 0,
+      "lead": 4,
+      "absence": 3,
+      "scope": "joueur",
+      "template": null,
+      "channels": [
+        -1003848194038
+      ],
+      "streak": 3,
+      "varStep": 0,
+      "decalage": 1,
+      "sentCount": 2,
+      "startGame": 1,
+      "lastSentAt": 1786579012411,
+      "channelInfos": [
+        {
+          "id": -1003848194038,
+          "type": "channel",
+          "error": null,
+          "title": "VIP 🏆",
+          "canPost": true,
+          "username": null,
+          "confirmed": true,
+          "memberCount": 3
+        }
+      ]
+    }
+  },
+  "aiAnalyses": [
+    {
+      "source": "local",
+      "title": "Analyse en attente de données",
+      "confidence": "exploratoire",
+      "observation": "Seulement 0 jeu(x) disponibles : il en faut au moins 6 pour observer un signal.",
+      "findings": [],
+      "strategies": [],
+      "nextChecks": [
+        "Laisser tourner le flux quelques minutes."
+      ],
+      "localSummary": {
+        "games": 0,
+        "recentGames": 0,
+        "suitCounts": {
+          "♦️": 0,
+          "❤️": 0,
+          "♣️": 0,
+          "♠️": 0
+        },
+        "playerWins": 0,
+        "bankerWins": 0,
+        "ties": 0
+      },
+      "sample": 0,
+      "generatedAt": "2026-08-13T19:18:54.587Z"
+    }
+  ],
+  "aiStrategies": [],
+  "predit": {
+    "enabled": true,
+    "channels": [],
+    "minSample": 8,
+    "maxR": 2,
+    "format": 1,
+    "perStrategy": 2,
+    "requireCombo": false
+  }
+}
